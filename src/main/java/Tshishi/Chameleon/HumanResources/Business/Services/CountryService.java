@@ -24,10 +24,10 @@ public class CountryService implements IdentifiedService<CountryDto, UUID> {
 
     @Override
     public CountryDto addEntity(CountryDto countryDto) {
-        logger.info(String.format("Try to add country with name %s", countryDto.getName()));
+        logger.info(String.format("Try to add %s with name %s.", Country.class.getName(), countryDto.getName()));
 
         if (StringUtils.isBlank(countryDto.getName())) {
-            errorMessage = "Country name can't be null";
+            errorMessage = "Country name can't be null!";
             logger.warning(errorMessage);
             throw new IllegalArgumentException(errorMessage);
         }
@@ -37,20 +37,21 @@ public class CountryService implements IdentifiedService<CountryDto, UUID> {
                         value -> {
                             countryDto.setId(value.getId());
                             countryDto.setName(value.getName());
-                            logger.info("This country existed");
+                            logger.info(String.format("This country : \"%s\" existed.", countryDto.getName()));
                         },
                         () -> {
                             Country country = countryRepository.save(countryMapper.toEntity(countryDto));
                             countryDto.setId(country.getId());
                             countryDto.setName(country.getName());
-                            logger.info(String.format("The country %s was successfully registered", countryDto.getName()));
-                        });
+                            logger.info(String.format("The country \"%s\" was successfully registered.", countryDto.getName()));
+                        }
+                );
         return countryDto;
     }
 
     @Override
     public CountryDto readEntity(UUID uuid) {
-        logger.info(String.format("Try to get country with id : %s", uuid));
+        logger.info(String.format("Try to get country with id : %s.", uuid));
 
         CountryDto countryDto = new CountryDto();
         countryRepository.findById(uuid)
@@ -58,10 +59,10 @@ public class CountryService implements IdentifiedService<CountryDto, UUID> {
                         value -> {
                             countryDto.setId(value.getId());
                             countryDto.setName(value.getName());
-                            logger.info(String.format("This Country with id : %s was found and sent", uuid));
+                            logger.info(String.format("This country with id : %s was found and sent.", uuid));
                         },
                         () -> {
-                            errorMessage = String.format("This Country with id  : %s NOT FOUND", uuid);
+                            errorMessage = String.format("This country with id  : %s NOT FOUND!", uuid);
                             logger.warning(errorMessage);
                             throw new RuntimeException(errorMessage);
                         }
@@ -70,7 +71,7 @@ public class CountryService implements IdentifiedService<CountryDto, UUID> {
     }
 
     @Override
-    public List<CountryDto> readAllEntity() {
+    public List<CountryDto> readAllEntities() {
         logger.info("Get all country");
 
         return countryMapper.toDtos(countryRepository.findAll());
@@ -78,38 +79,41 @@ public class CountryService implements IdentifiedService<CountryDto, UUID> {
 
     @Override
     public CountryDto updateEntity(CountryDto countryDto, UUID uuid) {
-        logger.info(String.format("Try to update country with id : %s", uuid));
+        logger.info(String.format("Try to update country with id : %s.", uuid));
 
-        countryRepository.findById(uuid).ifPresentOrElse(
-                value -> {
-                    logger.info(String.format("Country with id : %s was found", uuid));
-                    countryDto.setId(value.getId());
-                    countryDto.setName(countryDto.getName().toUpperCase());
-                    countryRepository.save(countryMapper.toEntity(countryDto));
-                },
-                () -> {
-                    errorMessage = String.format("Country with id : %s was not found. UPDATE FAIL!", uuid);
-                    logger.warning(errorMessage);
-                    throw new RuntimeException(errorMessage);
-                }
-        );
+        countryRepository.findById(uuid)
+                .ifPresentOrElse(
+                        value -> {
+                            logger.info(String.format("Country with id : %s was found.", uuid));
+                            countryDto.setId(value.getId());
+                            countryDto.setName(countryDto.getName().toUpperCase());
+                            countryRepository.save(countryMapper.toEntity(countryDto));
+                            logger.info(String.format("Country with id : %s was UPDATED.", uuid));
+                        },
+                        () -> {
+                            errorMessage = String.format("Country with id : %s was not found. UPDATE FAIL!", uuid);
+                            logger.warning(errorMessage);
+                            throw new RuntimeException(errorMessage);
+                        }
+                );
         return countryDto;
     }
 
     @Override
     public void deleteEntity(UUID uuid) {
-        logger.info(String.format("Try to delete country with id : %s", uuid));
+        logger.info(String.format("Try to delete country with id : %s.", uuid));
 
-        countryRepository.findById(uuid).ifPresentOrElse(
-                value -> {
-                    countryRepository.deleteById(uuid);
-                    logger.info(String.format("Country with id : %s was found and deleted", uuid));
-                },
-                () -> {
-                    errorMessage = String.format("Country with id : %s was not found. DELETE FAIL!", uuid);
-                    logger.warning(errorMessage);
-                    throw new RuntimeException(errorMessage);
-                }
-        );
+        countryRepository.findById(uuid)
+                .ifPresentOrElse(
+                        value -> {
+                            countryRepository.deleteById(uuid);
+                            logger.info(String.format("Country with id : %s was found and deleted.", uuid));
+                        },
+                        () -> {
+                            errorMessage = String.format("Country with id : %s was not found. DELETE FAIL!", uuid);
+                            logger.warning(errorMessage);
+                            throw new RuntimeException(errorMessage);
+                        }
+                );
     }
 }

@@ -8,7 +8,7 @@ public interface IdentifiedService<Dto, UUID> {
 
     Dto readEntity(UUID uuid);
 
-    List<Dto> readAllEntity();
+    List<Dto> readAllEntities();
 
     Dto updateEntity(Dto dto, UUID uuid);
 
