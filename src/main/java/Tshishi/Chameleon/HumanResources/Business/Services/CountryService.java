@@ -5,7 +5,6 @@ import Tshishi.Chameleon.HumanResources.Business.Dtos.CountryDto;
 import Tshishi.Chameleon.HumanResources.Business.Mappers.CountryMapper;
 import Tshishi.Chameleon.HumanResources.DataAccess.Entities.Country;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.CountryRepository;
-import com.sun.tools.javac.Main;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,7 @@ public class CountryService implements IdentifiedService<CountryDto, UUID> {
 
     private final CountryRepository countryRepository;
     private final CountryMapper countryMapper = new CountryMapper();
-    private final static Logger logger = Logger.getLogger(Main.class.getName());
+    private final static Logger logger = Logger.getLogger(CountryService.class.getName());
     private String errorMessage;
 
     @Override
