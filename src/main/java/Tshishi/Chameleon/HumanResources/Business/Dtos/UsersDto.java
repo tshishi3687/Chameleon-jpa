@@ -27,4 +27,9 @@ public class UsersDto implements IdentifiedDto<UUID> {
     private List<RolesDto> rolesDtoList;
 
     private ContactDetailsDto contactDetails;
+
+    @Override
+    public String getName() {
+        return firstName + " " + lastName;
+    }
 }

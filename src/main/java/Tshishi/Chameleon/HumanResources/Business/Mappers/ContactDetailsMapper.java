@@ -10,6 +10,9 @@ import java.util.logging.Logger;
 public class ContactDetailsMapper implements IdentifiedMapper<ContactDetailsDto, ContactDetails> {
 
     private final static Logger logger = Logger.getLogger(ContactDetailsMapper.class.getName());
+    private LocalityMapper localityMapper = new LocalityMapper();
+    private CountryMapper countryMapper = new CountryMapper();
+    private UsersMapper usersMapper = new UsersMapper();
     @Override
     public ContactDetailsDto toDto(ContactDetails contactDetails) {
         logger.info(String.format("Beginning of mapping from Entity class \"%s\" to Dto class \"%s\".",ContactDetails.class.getName(), ContactDetailsDto.class.getName()));
@@ -20,8 +23,9 @@ public class ContactDetailsMapper implements IdentifiedMapper<ContactDetailsDto,
                 contactDetails.getPhone(),
                 contactDetails.getAddress(),
                 contactDetails.getNumber(),
-                null,
-                null
+                localityMapper.toDto(contactDetails.getLocality()),
+                countryMapper.toDto(contactDetails.getCountry()),
+                usersMapper.toDto(contactDetails.getUsers())
         );
     }
 
@@ -34,9 +38,9 @@ public class ContactDetailsMapper implements IdentifiedMapper<ContactDetailsDto,
                 contactDetailsDto.getPhone(),
                 contactDetailsDto.getAddress(),
                 contactDetailsDto.getNumber(),
-                null,
-                null,
-                null
+                localityMapper.toEntity(contactDetailsDto.getLocality()),
+                countryMapper.toEntity(contactDetailsDto.getCountry()),
+                usersMapper.toEntity(contactDetailsDto.getUsers())
         );
     }
 

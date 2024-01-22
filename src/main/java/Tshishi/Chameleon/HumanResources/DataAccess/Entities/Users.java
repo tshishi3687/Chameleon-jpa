@@ -32,13 +32,12 @@ public class Users extends BaseEntity {
 
     @ManyToMany
     @JoinTable(
-            name = "users-roles",
+            name = "users_roles",
             joinColumns = @JoinColumn(name = "UsersID"),
             inverseJoinColumns = @JoinColumn(name = "RolesID"))
     @ToString.Exclude
     private List<Roles> rolesList;
 
-    @OneToOne( cascade = CascadeType.ALL )
-    @JoinColumn( name="contact_details", referencedColumnName = "id")
-    private ContactDetails contactDetails;
+    @OneToMany
+    private List<ContactDetails> contactDetails;
 }

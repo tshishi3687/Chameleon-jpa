@@ -1,12 +1,10 @@
 package Tshishi.Chameleon.HumanResources.Business.Services;
 
-import Tshishi.Chameleon.Common.Interface.IdentifiedService;
+import Tshishi.Chameleon.Common.AbstractClass.BaseService;
 import Tshishi.Chameleon.HumanResources.Business.Dtos.CountryDto;
 import Tshishi.Chameleon.HumanResources.Business.Mappers.CountryMapper;
 import Tshishi.Chameleon.HumanResources.DataAccess.Entities.Country;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.CountryRepository;
-import io.micrometer.common.util.StringUtils;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,24 +12,20 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 @Service
-@RequiredArgsConstructor
-public class CountryService implements IdentifiedService<CountryDto, UUID> {
+public class CountryService extends BaseService<CountryDto, UUID> {
 
     private final CountryRepository countryRepository;
     private final CountryMapper countryMapper = new CountryMapper();
     private final static Logger logger = Logger.getLogger(CountryService.class.getName());
     private String errorMessage;
 
+    public CountryService(CountryRepository countryRepository) {
+        super(logger, CountryDto.class.getName());
+        this.countryRepository = countryRepository;
+    }
+
     @Override
     public CountryDto addEntity(CountryDto countryDto) {
-        logger.info(String.format("Try to add %s with name %s.", Country.class.getName(), countryDto.getName()));
-
-        if (StringUtils.isBlank(countryDto.getName())) {
-            errorMessage = "Country name can't be null!";
-            logger.warning(errorMessage);
-            throw new IllegalArgumentException(errorMessage);
-        }
-
         countryRepository.findCountryByName(countryDto.getName().toUpperCase())
                 .ifPresentOrElse(
                         value -> {
@@ -51,8 +45,6 @@ public class CountryService implements IdentifiedService<CountryDto, UUID> {
 
     @Override
     public CountryDto readEntity(UUID uuid) {
-        logger.info(String.format("Try to get country with id : %s.", uuid));
-
         CountryDto countryDto = new CountryDto();
         countryRepository.findById(uuid)
                 .ifPresentOrElse(
@@ -72,26 +64,23 @@ public class CountryService implements IdentifiedService<CountryDto, UUID> {
 
     @Override
     public List<CountryDto> readAllEntities() {
-        logger.info("Get all country");
-
         return countryMapper.toDtos(countryRepository.findAll());
     }
 
     @Override
     public CountryDto updateEntity(CountryDto countryDto, UUID uuid) {
-        logger.info(String.format("Try to update country with id : %s.", uuid));
-
         countryRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
-                            logger.info(String.format("Country with id : %s was found.", uuid));
-                            countryDto.setId(value.getId());
-                            countryDto.setName(countryDto.getName().toUpperCase());
-                            countryRepository.save(countryMapper.toEntity(countryDto));
-                            logger.info(String.format("Country with id : %s was UPDATED.", uuid));
+                            logger.info(String.format("This country with id : %s was found.", uuid));
+                            value.setName(countryDto.getName());
+                            Country country = countryRepository.save(value);
+                            countryDto.setId(country.getId());
+                            countryDto.setName(country.getName());
+                            logger.info(String.format("This country with id : %s was UPDATED.", uuid));
                         },
                         () -> {
-                            errorMessage = String.format("Country with id : %s was not found. UPDATE FAIL!", uuid);
+                            errorMessage = String.format("This country with id : %s was not found. UPDATE FAIL!", uuid);
                             logger.warning(errorMessage);
                             throw new RuntimeException(errorMessage);
                         }
@@ -101,16 +90,14 @@ public class CountryService implements IdentifiedService<CountryDto, UUID> {
 
     @Override
     public void deleteEntity(UUID uuid) {
-        logger.info(String.format("Try to delete country with id : %s.", uuid));
-
         countryRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
-                            countryRepository.deleteById(uuid);
-                            logger.info(String.format("Country with id : %s was found and deleted.", uuid));
+                            countryRepository.delete(value);
+                            logger.info(String.format("This country with id : %s was found and deleted.", uuid));
                         },
                         () -> {
-                            errorMessage = String.format("Country with id : %s was not found. DELETE FAIL!", uuid);
+                            errorMessage = String.format("This country with id : %s was not found. DELETE FAIL!", uuid);
                             logger.warning(errorMessage);
                             throw new RuntimeException(errorMessage);
                         }

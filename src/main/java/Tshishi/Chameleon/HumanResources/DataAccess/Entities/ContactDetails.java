@@ -1,10 +1,7 @@
 package Tshishi.Chameleon.HumanResources.DataAccess.Entities;
 
 import Tshishi.Chameleon.Common.AbstractClass.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,6 +32,6 @@ public class ContactDetails extends BaseEntity {
     @ManyToOne
     private Country country;
 
-    @OneToOne(mappedBy = "contactDetails")
+    @ManyToOne
     private Users users;
 }

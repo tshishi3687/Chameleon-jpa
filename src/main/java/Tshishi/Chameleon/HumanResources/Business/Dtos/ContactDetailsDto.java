@@ -27,4 +27,11 @@ public class ContactDetailsDto implements IdentifiedDto<UUID> {
     private LocalityDto locality;
 
     private CountryDto country;
+
+    private UsersDto users;
+
+    @Override
+    public String getName() {
+        return null;
+    }
 }
