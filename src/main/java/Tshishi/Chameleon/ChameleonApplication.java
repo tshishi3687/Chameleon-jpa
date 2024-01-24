@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 @SpringBootApplication
 public class ChameleonApplication {
 
-	private final static Logger logger = Logger.getLogger(ChameleonApplication.class.getName());
+	private final static Logger logger = Logger.getLogger(ChameleonApplication.class.getSimpleName());
 
 	public static void main(String[] args) {
 

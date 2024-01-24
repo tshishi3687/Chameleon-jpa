@@ -16,11 +16,11 @@ public class CountryService extends BaseService<CountryDto, UUID> {
 
     private final CountryRepository countryRepository;
     private final CountryMapper countryMapper = new CountryMapper();
-    private final static Logger logger = Logger.getLogger(CountryService.class.getName());
+    private final static Logger logger = Logger.getLogger(CountryService.class.getSimpleName());
     private String errorMessage;
 
     public CountryService(CountryRepository countryRepository) {
-        super(logger, CountryDto.class.getName());
+        super(logger, CountryDto.class.getSimpleName());
         this.countryRepository = countryRepository;
     }
 

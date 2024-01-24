@@ -14,13 +14,13 @@ import java.util.logging.Logger;
 @Service
 public class LocalityService extends BaseService<LocalityDto, UUID> {
 
-    private final static Logger logger = Logger.getLogger(LocalityService.class.getName());
+    private final static Logger logger = Logger.getLogger(LocalityService.class.getSimpleName());
     private final LocalityRepository localityRepository;
     private final LocalityMapper localityMapper = new LocalityMapper();
     private String errorMessage;
 
     public LocalityService(LocalityRepository localityRepository) {
-        super(logger, LocalityDto.class.getName());
+        super(logger, LocalityDto.class.getSimpleName());
         this.localityRepository = localityRepository;
     }
 

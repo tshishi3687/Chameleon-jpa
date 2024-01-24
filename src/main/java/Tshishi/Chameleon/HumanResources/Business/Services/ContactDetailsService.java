@@ -16,11 +16,11 @@ import java.util.logging.Logger;
 public class ContactDetailsService extends BaseService<ContactDetailsDto, UUID> {
 
     private final ContactDetailsRepository contactDetailsRepository;
-    private final static Logger logger = Logger.getLogger(ContactDetailsService.class.getName());
+    private final static Logger logger = Logger.getLogger(ContactDetailsService.class.getSimpleName());
     private final ContactDetailsMapper contactDetailsMapper = new ContactDetailsMapper();
 
     public ContactDetailsService(ContactDetailsRepository contactDetailsRepository) {
-        super(logger, ContactDetailsDto.class.getName());
+        super(logger, ContactDetailsDto.class.getSimpleName());
         this.contactDetailsRepository = contactDetailsRepository;
     }
 

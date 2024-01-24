@@ -14,33 +14,33 @@ import java.util.logging.Logger;
 @Service
 public class RolesService extends BaseService<RolesDto, UUID> {
 
-    private final static Logger logger = Logger.getLogger(RolesService.class.getName());
+    private final static Logger logger = Logger.getLogger(RolesService.class.getSimpleName());
     private final RolesRepository rolesRepository;
     private final RolesMapper rolesMapper = new RolesMapper();
     private String errorMessage;
 
     public RolesService(RolesRepository rolesRepository) {
-        super(logger, RolesDto.class.getName());
+        super(logger, RolesDto.class.getSimpleName());
         this.rolesRepository = rolesRepository;
     }
 
     @Override
-    public RolesDto addEntity(RolesDto rolesDto) {
-        rolesRepository.findRolesByName(rolesDto.getName())
+    public RolesDto addEntity(RolesDto dto) {
+        rolesRepository.findRolesByName(dto.getName())
                 .ifPresentOrElse(
                         value -> {
-                            rolesDto.setId(value.getId());
-                            rolesDto.setName(value.getName());
-                            logger.info(String.format("This roles : \"%s\" existed.", rolesDto.getName()));
+                            dto.setId(value.getId());
+                            dto.setName(value.getName());
+                            logger.warning(String.format("%s : \"%s\" existed with id : %s.", value.getClass().getSimpleName(), dto.getName(), dto.getId()));
                         },
                         () -> {
-                            Roles roles = rolesRepository.save(rolesMapper.toEntity(rolesDto));
-                            rolesDto.setId(roles.getId());
-                            rolesDto.setName(roles.getName());
-                            logger.info(String.format("The roles \"%s\" was successfully registered.", rolesDto.getName()));
+                            Roles roles = rolesRepository.save(rolesMapper.toEntity(dto));
+                            dto.setId(roles.getId());
+                            dto.setName(roles.getName());
+                            logger.info(String.format("The roles \"%s\" was successfully registered.", dto.getClass().getSimpleName()));
                         }
                 );
-        return rolesDto;
+        return dto;
     }
 
     @Override
@@ -51,10 +51,10 @@ public class RolesService extends BaseService<RolesDto, UUID> {
                         value -> {
                             rolesDto.setId(value.getId());
                             rolesDto.setName(value.getName());
-                            logger.info(String.format("This roles with id : %s was found and sent", uuid));
+                            logger.info(String.format("%s with id : %s was found and sent", value.getClass().getSimpleName(), uuid));
                         },
                         () -> {
-                            errorMessage = String.format("This roles with id : %s NOT FOUND!", uuid);
+                            errorMessage = String.format("%s with id : %s NOT FOUND!", "This Roles.", uuid);
                             logger.warning(errorMessage);
                             throw new RuntimeException(errorMessage);
                         }
@@ -73,15 +73,15 @@ public class RolesService extends BaseService<RolesDto, UUID> {
         rolesRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
-                            logger.info(String.format("This roles with id : %s was found", uuid));
+                            logger.info(String.format("%s with id : %s was found", value.getClass().getSimpleName(), uuid));
                             value.setName(rolesDto.getName().toUpperCase());
                             Roles roles = rolesRepository.save(value);
                             rolesDto.setId(roles.getId());
                             rolesDto.setName(roles.getName());
-                            logger.info(String.format("This roles with id : %s was UPDATED.", uuid));
+                            logger.info(String.format("%s with id : %s was UPDATED.", value.getClass().getSimpleName(), uuid));
                         },
                         () -> {
-                            errorMessage = String.format("This roles with id : %s was not found. UPDATE FAIL!", uuid);
+                            errorMessage = String.format("%s with id : %s was not found. UPDATE FAIL!", "This Roles", uuid);
                             logger.warning(errorMessage);
                             throw new RuntimeException(errorMessage);
                         }
@@ -95,10 +95,10 @@ public class RolesService extends BaseService<RolesDto, UUID> {
                 .ifPresentOrElse(
                         value -> {
                             rolesRepository.delete(value);
-                            logger.info(String.format("This roles with id : %s was found and deleted.", uuid));
+                            logger.info(String.format("%s with id : %s was found and deleted.",value.getClass().getSimpleName(), uuid));
                         },
                         () -> {
-                            errorMessage = String.format("This roles with id : %s was not found. DELETE FAIL!", uuid);
+                            errorMessage = String.format("%s with id : %s was not found. DELETE FAIL!", "This Roles", uuid);
                             logger.warning(errorMessage);
                             throw new RuntimeException(errorMessage);
                         }

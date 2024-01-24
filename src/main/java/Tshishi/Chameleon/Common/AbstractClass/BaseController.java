@@ -4,7 +4,6 @@ import Tshishi.Chameleon.Common.Interface.IdentifedController;
 import Tshishi.Chameleon.Common.Interface.IdentifiedDto;
 import Tshishi.Chameleon.Common.Interface.IdentifiedService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -21,12 +20,11 @@ public abstract class BaseController<DTO extends IdentifiedDto<UUID>, UUID> impl
         this.service = service;
     }
 
-    @PostMapping()
-    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping
     public ResponseEntity<DTO> addEntity(@RequestBody @Validated DTO dto, HttpServletRequest request) throws URISyntaxException {
         DTO createdDto = service.addEntity(dto);
         String requestUrl = request.getRequestURL().toString();
-        URI location = new URI(requestUrl + "/" + createdDto.getId());
+        URI location = new URI(String.format("%s/%s", requestUrl, createdDto.getId()));
         return ResponseEntity.created(location).body(createdDto);
     }
 
@@ -45,7 +43,7 @@ public abstract class BaseController<DTO extends IdentifiedDto<UUID>, UUID> impl
     }
 
     // UPDATE - PUT > http://localhost:8081/?
-    @PutMapping("{uuid}")
+    @PutMapping("/{uuid}")
     public ResponseEntity<DTO> updateEntity(@RequestBody DTO dto, @PathVariable UUID uuid) {
         return ResponseEntity.ok(service.updateEntity(dto, uuid));
     }
