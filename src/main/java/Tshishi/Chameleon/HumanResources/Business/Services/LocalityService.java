@@ -1,8 +1,9 @@
 package Tshishi.Chameleon.HumanResources.Business.Services;
 
-import Tshishi.Chameleon.Common.AbstractClass.BaseService;
+import Tshishi.Chameleon.Common.Interface.IdentifiedService;
 import Tshishi.Chameleon.HumanResources.Business.Dtos.LocalityDto;
 import Tshishi.Chameleon.HumanResources.Business.Mappers.LocalityMapper;
+import Tshishi.Chameleon.HumanResources.Business.Services.Common.ServiceStarterLogs;
 import Tshishi.Chameleon.HumanResources.DataAccess.Entities.Locality;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.LocalityRepository;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,7 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 @Service
-public class LocalityService extends BaseService<LocalityDto, UUID> {
+public class LocalityService implements IdentifiedService<LocalityDto, UUID> {
 
     private final static Logger logger = Logger.getLogger(LocalityService.class.getSimpleName());
     private final LocalityRepository localityRepository;
@@ -20,32 +21,33 @@ public class LocalityService extends BaseService<LocalityDto, UUID> {
     private String errorMessage;
 
     public LocalityService(LocalityRepository localityRepository) {
-        super(logger, LocalityDto.class.getSimpleName());
         this.localityRepository = localityRepository;
     }
 
     @Override
-    public LocalityDto addEntity(LocalityDto localityDto) {
-        localityRepository.findLocalityByName(localityDto.getName())
+    public LocalityDto addEntity(LocalityDto dto) {
+        new ServiceStarterLogs<>(logger, dto).ifAddingEntity();
+        localityRepository.findLocalityByName(dto.getName())
                 .ifPresentOrElse(
                         value -> {
-                            localityDto.setId(value.getId());
-                            localityDto.setName(value.getName());
-                            logger.info(String.format("This locality : \"%s\" existed.", localityDto.getName()));
+                            dto.setId(value.getId());
+                            dto.setName(value.getName());
+                            logger.info(String.format("This locality : \"%s\" existed.", dto.getName()));
                         },
                         () -> {
-                            Locality locality = localityRepository.save(localityMapper.toEntity(localityDto));
-                            localityDto.setId(locality.getId());
-                            localityDto.setName(locality.getName());
-                            logger.info(String.format("The locality \"%s\" was successfully registered.", localityDto.getName()));
+                            Locality locality = localityRepository.save(localityMapper.toEntity(dto));
+                            dto.setId(locality.getId());
+                            dto.setName(locality.getName());
+                            logger.info(String.format("The locality \"%s\" was successfully registered.", dto.getName()));
                         }
                 );
-        return localityDto;
+        return dto;
     }
 
     @Override
     public LocalityDto readEntity(UUID uuid) {
         LocalityDto localityDto = new LocalityDto();
+        new ServiceStarterLogs<>(logger, localityDto).ifReadingEntity(uuid);
         localityRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
@@ -64,11 +66,13 @@ public class LocalityService extends BaseService<LocalityDto, UUID> {
 
     @Override
     public List<LocalityDto> readAllEntities() {
+        new ServiceStarterLogs<>(logger, new LocalityDto()).ifReadingAllEntity();
         return localityMapper.toDtos(localityRepository.findAll());
     }
 
     @Override
     public LocalityDto updateEntity(LocalityDto localityDto, UUID uuid) {
+        new ServiceStarterLogs<>(logger, localityDto).ifUpdatingEntity(uuid);
         localityRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
@@ -88,6 +92,7 @@ public class LocalityService extends BaseService<LocalityDto, UUID> {
 
     @Override
     public void deleteEntity(UUID uuid) {
+        new ServiceStarterLogs<>(logger, new LocalityDto()).ifDeletingEntity(uuid);
         localityRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {

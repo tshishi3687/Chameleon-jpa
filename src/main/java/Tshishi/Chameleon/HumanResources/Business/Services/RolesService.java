@@ -1,8 +1,9 @@
 package Tshishi.Chameleon.HumanResources.Business.Services;
 
-import Tshishi.Chameleon.Common.AbstractClass.BaseService;
+import Tshishi.Chameleon.Common.Interface.IdentifiedService;
 import Tshishi.Chameleon.HumanResources.Business.Dtos.RolesDto;
 import Tshishi.Chameleon.HumanResources.Business.Mappers.RolesMapper;
+import Tshishi.Chameleon.HumanResources.Business.Services.Common.ServiceStarterLogs;
 import Tshishi.Chameleon.HumanResources.DataAccess.Entities.Roles;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.RolesRepository;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,7 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 @Service
-public class RolesService extends BaseService<RolesDto, UUID> {
+public class RolesService implements IdentifiedService<RolesDto, UUID> {
 
     private final static Logger logger = Logger.getLogger(RolesService.class.getSimpleName());
     private final RolesRepository rolesRepository;
@@ -20,12 +21,12 @@ public class RolesService extends BaseService<RolesDto, UUID> {
     private String errorMessage;
 
     public RolesService(RolesRepository rolesRepository) {
-        super(logger, RolesDto.class.getSimpleName());
         this.rolesRepository = rolesRepository;
     }
 
     @Override
     public RolesDto addEntity(RolesDto dto) {
+        new ServiceStarterLogs<>(logger, dto).ifAddingEntity();
         rolesRepository.findRolesByName(dto.getName())
                 .ifPresentOrElse(
                         value -> {
@@ -46,6 +47,7 @@ public class RolesService extends BaseService<RolesDto, UUID> {
     @Override
     public RolesDto readEntity(UUID uuid) {
         RolesDto rolesDto = new RolesDto();
+        new ServiceStarterLogs<>(logger, rolesDto).ifReadingEntity(uuid);
         rolesRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
@@ -54,8 +56,8 @@ public class RolesService extends BaseService<RolesDto, UUID> {
                             logger.info(String.format("%s with id : %s was found and sent", value.getClass().getSimpleName(), uuid));
                         },
                         () -> {
-                            errorMessage = String.format("%s with id : %s NOT FOUND!", "This Roles.", uuid);
-                            logger.warning(errorMessage);
+                            errorMessage = String.format("%s with id : %s NOT FOUND!", "This roles", uuid);
+                            logger.severe(errorMessage);
                             throw new RuntimeException(errorMessage);
                         }
                 );
@@ -64,12 +66,13 @@ public class RolesService extends BaseService<RolesDto, UUID> {
 
     @Override
     public List<RolesDto> readAllEntities() {
+        new ServiceStarterLogs<>(logger, new RolesDto()).ifReadingAllEntity();
         return rolesMapper.toDtos(rolesRepository.findAll());
     }
 
     @Override
     public RolesDto updateEntity(RolesDto rolesDto, UUID uuid) {
-
+        new ServiceStarterLogs<>(logger, rolesDto).ifUpdatingEntity(uuid);
         rolesRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
@@ -82,7 +85,7 @@ public class RolesService extends BaseService<RolesDto, UUID> {
                         },
                         () -> {
                             errorMessage = String.format("%s with id : %s was not found. UPDATE FAIL!", "This Roles", uuid);
-                            logger.warning(errorMessage);
+                            logger.severe(errorMessage);
                             throw new RuntimeException(errorMessage);
                         }
                 );
@@ -91,6 +94,7 @@ public class RolesService extends BaseService<RolesDto, UUID> {
 
     @Override
     public void deleteEntity(UUID uuid) {
+        new ServiceStarterLogs<>(logger, new RolesDto()).ifDeletingEntity(uuid);
         rolesRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
@@ -99,7 +103,7 @@ public class RolesService extends BaseService<RolesDto, UUID> {
                         },
                         () -> {
                             errorMessage = String.format("%s with id : %s was not found. DELETE FAIL!", "This Roles", uuid);
-                            logger.warning(errorMessage);
+                            logger.severe(errorMessage);
                             throw new RuntimeException(errorMessage);
                         }
                 );
