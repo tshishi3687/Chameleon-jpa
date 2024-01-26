@@ -13,6 +13,5 @@ public class CountryDto implements IdentifiedDto<UUID> {
 
     private UUID id;
 
-    @NonNull
     private String name;
 }

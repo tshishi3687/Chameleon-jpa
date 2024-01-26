@@ -21,8 +21,9 @@ public class UsersMapper implements IdentifiedMapper<UsersDto, Users> {
                 users.getFirstName(),
                 users.getLastName(),
                 users.getBirthdays(),
+                null,
                 new ArrayList<>(),
-                null
+                new ArrayList<>()
         );
     }
 
@@ -37,7 +38,7 @@ public class UsersMapper implements IdentifiedMapper<UsersDto, Users> {
                 null,
                 usersDto.getBirthDay(),
                 new ArrayList<>(),
-                null
+                new ArrayList<>()
 
         );
     }

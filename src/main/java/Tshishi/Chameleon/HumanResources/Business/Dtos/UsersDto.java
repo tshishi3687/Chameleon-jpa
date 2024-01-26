@@ -24,9 +24,11 @@ public class UsersDto implements IdentifiedDto<UUID> {
 
     private LocalDate birthDay;
 
+    private String password;
+
     private List<RolesDto> rolesDtoList;
 
-    private ContactDetailsDto contactDetails;
+    private List<ContactDetailsDto> contactDetails;
 
     @Override
     public String getName() {

@@ -12,6 +12,5 @@ public class LocalityDto implements IdentifiedDto<UUID> {
 
     private UUID id;
 
-    @NonNull
     private String name;
 }

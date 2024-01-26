@@ -2,6 +2,7 @@ package Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger;
 
 import Tshishi.Chameleon.Common.Interface.IdentifiedDto;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -21,11 +22,16 @@ public class ServiceStarterLogs {
                 case UPDATING_ENTITY -> logger.warning(String.format("Try to update %s with id : %s.", dto.getClass().getSimpleName(), uuid));
                 case DELETING_ENTITY -> logger.warning(String.format("Try to delete %s with id : %s.", dto.getClass().getSimpleName(), uuid));
             }
+            if (StringUtils.isBlank(dto.getName()) && !loggerTypes.equals(LoggerTypes.READING_ALL_ENTITY)) {
+                String error = String.format("This %s .getName was not be null!", dto.getClass().getSimpleName());
+                logger.severe(error);
+                throw new RuntimeException(error);
+            }
         }
 
         if (loggerStep.equals(LoggerStep.SUCCESS)) {
             switch (loggerTypes) {
-                case ADDING_ENTITY -> logger.info(String.format("This %s : \"%s\" existed with id : %s.", dto.getClass().getSimpleName(), dto.getName(), uuid));
+                case ADDING_ENTITY -> logger.info(String.format("This %s : \"%s\" saved with id : %s.", dto.getClass().getSimpleName(), dto.getName(), uuid));
                 case READING_ENTITY -> logger.info(String.format("This %s with id : %s was found and sent", dto.getClass().getSimpleName(), uuid));
                 case UPDATING_ENTITY -> logger.info(String.format("This %s with id : %s was found", dto.getClass().getSimpleName(), uuid));
                 case DELETING_ENTITY -> logger.info(String.format("This %s with id : %s was found and deleted.", dto.getClass().getSimpleName(), uuid));

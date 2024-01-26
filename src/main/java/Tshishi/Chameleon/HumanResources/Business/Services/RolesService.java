@@ -12,12 +12,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 @Service
 public class RolesService implements IdentifiedService<RolesDto, UUID> {
 
-    private final static Logger logger = Logger.getLogger(RolesService.class.getSimpleName());
     private final RolesRepository rolesRepository;
     private final RolesMapper rolesMapper = new RolesMapper();
     private final ServiceStarterLogs serviceStarterLogs;
@@ -52,22 +50,22 @@ public class RolesService implements IdentifiedService<RolesDto, UUID> {
                         value -> {
                             dto.setId(value.getId());
                             dto.setName(value.getName());
-                            serviceStarterLogs.logsConstruction(LoggerStep.SUCCESS,LoggerTypes.READING_ENTITY, dto, dto.getId());
+                            serviceStarterLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.READING_ENTITY, dto, dto.getId());
                         },
-                        () -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR,LoggerTypes.READING_ENTITY, dto, uuid)
+                        () -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, dto, uuid)
                 );
         return dto;
     }
 
     @Override
     public List<RolesDto> readAllEntities() {
-        serviceStarterLogs.logsConstruction(LoggerStep.TRY,LoggerTypes.READING_ALL_ENTITY, new RolesDto(), null);
+        serviceStarterLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ALL_ENTITY, new RolesDto(), null);
         return rolesMapper.toDtos(rolesRepository.findAll());
     }
 
     @Override
     public RolesDto updateEntity(RolesDto dto, UUID uuid) {
-        serviceStarterLogs.logsConstruction(LoggerStep.TRY,LoggerTypes.UPDATING_ENTITY, dto, uuid);
+        serviceStarterLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.UPDATING_ENTITY, dto, uuid);
         rolesRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
@@ -75,23 +73,23 @@ public class RolesService implements IdentifiedService<RolesDto, UUID> {
                             Roles roles = rolesRepository.save(value);
                             dto.setId(roles.getId());
                             dto.setName(roles.getName());
-                            serviceStarterLogs.logsConstruction(LoggerStep.SUCCESS,LoggerTypes.UPDATING_ENTITY, dto, dto.getId());
+                            serviceStarterLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.UPDATING_ENTITY, dto, dto.getId());
                         },
-                        () -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR,LoggerTypes.UPDATING_ENTITY, dto, uuid)
+                        () -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.UPDATING_ENTITY, dto, uuid)
                 );
         return dto;
     }
 
     @Override
     public void deleteEntity(UUID uuid) {
-        serviceStarterLogs.logsConstruction(LoggerStep.TRY,LoggerTypes.DELETING_ENTITY, new RolesDto(), uuid);
+        serviceStarterLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.DELETING_ENTITY, new RolesDto(), uuid);
         rolesRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
                             rolesRepository.delete(value);
-                            logger.info(String.format("%s with id : %s was found and deleted.", value.getClass().getSimpleName(), uuid));
+                            serviceStarterLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.DELETING_ENTITY, new RolesDto(), value.getId());
                         },
-                        () -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR,LoggerTypes.DELETING_ENTITY, new RolesDto(), uuid)
+                        () -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.DELETING_ENTITY, new RolesDto(), uuid)
                 );
     }
 }

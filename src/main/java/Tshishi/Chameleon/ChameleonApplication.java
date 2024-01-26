@@ -2,6 +2,8 @@ package Tshishi.Chameleon;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.logging.Logger;
 
@@ -16,4 +18,8 @@ public class ChameleonApplication {
 		logger.info("This Chameleons apps started :). BY TSHISHI");
 	}
 
+	@Bean
+	BCryptPasswordEncoder getBCPE(){
+		return new BCryptPasswordEncoder();
+	}
 }

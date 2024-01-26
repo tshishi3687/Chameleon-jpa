@@ -2,42 +2,41 @@ package Tshishi.Chameleon.HumanResources.Business.Services;
 
 import Tshishi.Chameleon.Common.Interface.IdentifiedService;
 import Tshishi.Chameleon.HumanResources.Business.Dtos.CountryDto;
+import Tshishi.Chameleon.HumanResources.Business.Dtos.RolesDto;
 import Tshishi.Chameleon.HumanResources.Business.Mappers.CountryMapper;
+import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.LoggerStep;
+import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.LoggerTypes;
+import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.ServiceStarterLogs;
 import Tshishi.Chameleon.HumanResources.DataAccess.Entities.Country;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.CountryRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 @Service
 public class CountryService implements IdentifiedService<CountryDto, UUID> {
 
     private final CountryRepository countryRepository;
     private final CountryMapper countryMapper = new CountryMapper();
-    private final static Logger logger = Logger.getLogger(CountryService.class.getSimpleName());
-    private String errorMessage;
+    private final ServiceStarterLogs serviceStarterLogs;
 
     public CountryService(CountryRepository countryRepository) {
         this.countryRepository = countryRepository;
+        this.serviceStarterLogs = new ServiceStarterLogs();
     }
 
     @Override
     public CountryDto addEntity(CountryDto dto) {
-//        new ServiceStarterLogs<>(logger, dto).ifAddingEntity();
+        serviceStarterLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, dto, null);
         countryRepository.findCountryByName(dto.getName().toUpperCase())
                 .ifPresentOrElse(
-                        value -> {
-                            dto.setId(value.getId());
-                            dto.setName(value.getName());
-                            logger.info(String.format("This country : \"%s\" existed.", dto.getName()));
-                        },
+                        value -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.ADDING_ENTITY, dto, value.getId()),
                         () -> {
                             Country country = countryRepository.save(countryMapper.toEntity(dto));
                             dto.setId(country.getId());
                             dto.setName(country.getName());
-                            logger.info(String.format("The country \"%s\" was successfully registered.", dto.getName()));
+                            serviceStarterLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.ADDING_ENTITY, dto, dto.getId());
                         }
                 );
         return dto;
@@ -45,66 +44,53 @@ public class CountryService implements IdentifiedService<CountryDto, UUID> {
 
     @Override
     public CountryDto readEntity(UUID uuid) {
-        CountryDto countryDto = new CountryDto();
-//        new ServiceStarterLogs<>(logger, countryDto).ifReadingEntity(uuid);
+        CountryDto dto = new CountryDto();
+        serviceStarterLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ENTITY, dto, uuid);
         countryRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
-                            countryDto.setId(value.getId());
-                            countryDto.setName(value.getName());
-                            logger.info(String.format("This country with id : %s was found and sent.", uuid));
+                            dto.setId(value.getId());
+                            dto.setName(value.getName());
+                            serviceStarterLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.READING_ENTITY, dto, dto.getId());
                         },
-                        () -> {
-                            errorMessage = String.format("This country with id  : %s NOT FOUND!", uuid);
-                            logger.warning(errorMessage);
-                            throw new RuntimeException(errorMessage);
-                        }
+                        () -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, dto, uuid)
                 );
-        return countryDto;
+        return dto;
     }
 
     @Override
     public List<CountryDto> readAllEntities() {
-//        new ServiceStarterLogs<>(logger, new CountryDto()).ifReadingAllEntity();
+        serviceStarterLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ALL_ENTITY, new RolesDto(), null);
         return countryMapper.toDtos(countryRepository.findAll());
     }
 
     @Override
-    public CountryDto updateEntity(CountryDto countryDto, UUID uuid) {
-//        new ServiceStarterLogs<>(logger, countryDto).ifUpdatingEntity(uuid);
+    public CountryDto updateEntity(CountryDto dto, UUID uuid) {
+        serviceStarterLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.UPDATING_ENTITY, dto, uuid);
         countryRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
-                            logger.info(String.format("This country with id : %s was found.", uuid));
-                            value.setName(countryDto.getName());
+                            value.setName(dto.getName());
                             Country country = countryRepository.save(value);
-                            countryDto.setId(country.getId());
-                            countryDto.setName(country.getName());
-                            logger.info(String.format("This country with id : %s was UPDATED.", uuid));
+                            dto.setId(country.getId());
+                            dto.setName(country.getName());
+                            serviceStarterLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.UPDATING_ENTITY, dto, dto.getId());
                         },
-                        () -> {
-                            errorMessage = String.format("This country with id : %s was not found. UPDATE FAIL!", uuid);
-                            logger.warning(errorMessage);
-                            throw new RuntimeException(errorMessage);
-                        }
+                        () -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.UPDATING_ENTITY, dto, uuid)
                 );
-        return countryDto;
+        return dto;
     }
 
     @Override
     public void deleteEntity(UUID uuid) {
-//        new ServiceStarterLogs<>(logger, new CountryDto()).ifDeletingEntity(uuid);
+        serviceStarterLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.DELETING_ENTITY, new RolesDto(), uuid);
         countryRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
                             countryRepository.delete(value);
-                            logger.info(String.format("This country with id : %s was found and deleted.", uuid));
+                            serviceStarterLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.DELETING_ENTITY, new RolesDto(), value.getId());
                         },
-                        () -> {
-                            errorMessage = String.format("This country with id : %s was not found. DELETE FAIL!", uuid);
-                            logger.warning(errorMessage);
-                            throw new RuntimeException(errorMessage);
-                        }
+                        () -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.DELETING_ENTITY, new RolesDto(), uuid)
                 );
     }
 }
