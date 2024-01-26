@@ -2,9 +2,7 @@ package Tshishi.Chameleon.HumanResources.Business.Services;
 
 import Tshishi.Chameleon.Common.Interface.IdentifiedService;
 import Tshishi.Chameleon.HumanResources.Business.Dtos.ContactDetailsDto;
-import Tshishi.Chameleon.HumanResources.Business.Dtos.CountryDto;
 import Tshishi.Chameleon.HumanResources.Business.Mappers.ContactDetailsMapper;
-import Tshishi.Chameleon.HumanResources.Business.Services.Common.ServiceStarterLogs;
 import Tshishi.Chameleon.HumanResources.DataAccess.Entities.ContactDetails;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.ContactDetailsRepository;
 import org.springframework.stereotype.Service;
@@ -28,7 +26,7 @@ public class ContactDetailsService implements IdentifiedService<ContactDetailsDt
 
     @Override
     public ContactDetailsDto addEntity(ContactDetailsDto dto) {
-        new ServiceStarterLogs<>(logger, dto).ifAddingEntity();
+//        new ServiceStarterLogs<>(logger, dto).ifAddingEntity();
         if (contactDetailsRepository.countAllByUsers_Id(dto.getUsers().getId()) >= 3) {
             errorMessage = String.format("The users with id : %s already has 3 contact Details saved. MAXIMUM AUTHORIZED IS 3 FOR USERS", dto.getUsers().getId());
             logger.warning(errorMessage);
@@ -45,7 +43,7 @@ public class ContactDetailsService implements IdentifiedService<ContactDetailsDt
     @Override
     public ContactDetailsDto readEntity(UUID uuid) {
         AtomicReference<ContactDetailsDto> contactDetailsDto = new AtomicReference<>();
-        new ServiceStarterLogs<>(logger, contactDetailsDto.get()).ifReadingEntity(uuid);
+//        new ServiceStarterLogs<>(logger, contactDetailsDto.get()).ifReadingEntity(uuid);
         contactDetailsRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
@@ -63,13 +61,13 @@ public class ContactDetailsService implements IdentifiedService<ContactDetailsDt
 
     @Override
     public List<ContactDetailsDto> readAllEntities() {
-        new ServiceStarterLogs<>(logger, new ContactDetailsDto()).ifReadingAllEntity();
+//        new ServiceStarterLogs<>(logger, new ContactDetailsDto()).ifReadingAllEntity();
         return contactDetailsMapper.toDtos(contactDetailsRepository.findAll());
     }
 
     @Override
     public ContactDetailsDto updateEntity(ContactDetailsDto dto, UUID uuid) {
-        new ServiceStarterLogs<>(logger, dto).ifUpdatingEntity(uuid);
+//        new ServiceStarterLogs<>(logger, dto).ifUpdatingEntity(uuid);
         contactDetailsRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
@@ -89,6 +87,6 @@ public class ContactDetailsService implements IdentifiedService<ContactDetailsDt
 
     @Override
     public void deleteEntity(UUID uuid) {
-        new ServiceStarterLogs<>(logger, new CountryDto()).ifDeletingEntity(uuid);
+//        new ServiceStarterLogs<>(logger, new CountryDto()).ifDeletingEntity(uuid);
     }
 }

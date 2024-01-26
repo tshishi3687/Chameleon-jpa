@@ -3,7 +3,6 @@ package Tshishi.Chameleon.HumanResources.Business.Services;
 import Tshishi.Chameleon.Common.Interface.IdentifiedService;
 import Tshishi.Chameleon.HumanResources.Business.Dtos.LocalityDto;
 import Tshishi.Chameleon.HumanResources.Business.Mappers.LocalityMapper;
-import Tshishi.Chameleon.HumanResources.Business.Services.Common.ServiceStarterLogs;
 import Tshishi.Chameleon.HumanResources.DataAccess.Entities.Locality;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.LocalityRepository;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,7 @@ public class LocalityService implements IdentifiedService<LocalityDto, UUID> {
 
     @Override
     public LocalityDto addEntity(LocalityDto dto) {
-        new ServiceStarterLogs<>(logger, dto).ifAddingEntity();
+//        new ServiceStarterLogs<>(logger, dto).ifAddingEntity();
         localityRepository.findLocalityByName(dto.getName())
                 .ifPresentOrElse(
                         value -> {
@@ -47,7 +46,7 @@ public class LocalityService implements IdentifiedService<LocalityDto, UUID> {
     @Override
     public LocalityDto readEntity(UUID uuid) {
         LocalityDto localityDto = new LocalityDto();
-        new ServiceStarterLogs<>(logger, localityDto).ifReadingEntity(uuid);
+//        new ServiceStarterLogs<>(logger, localityDto).ifReadingEntity(uuid);
         localityRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
@@ -66,13 +65,13 @@ public class LocalityService implements IdentifiedService<LocalityDto, UUID> {
 
     @Override
     public List<LocalityDto> readAllEntities() {
-        new ServiceStarterLogs<>(logger, new LocalityDto()).ifReadingAllEntity();
+//        new ServiceStarterLogs<>(logger, new LocalityDto()).ifReadingAllEntity();
         return localityMapper.toDtos(localityRepository.findAll());
     }
 
     @Override
     public LocalityDto updateEntity(LocalityDto localityDto, UUID uuid) {
-        new ServiceStarterLogs<>(logger, localityDto).ifUpdatingEntity(uuid);
+//        new ServiceStarterLogs<>(logger, localityDto).ifUpdatingEntity(uuid);
         localityRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
@@ -92,7 +91,7 @@ public class LocalityService implements IdentifiedService<LocalityDto, UUID> {
 
     @Override
     public void deleteEntity(UUID uuid) {
-        new ServiceStarterLogs<>(logger, new LocalityDto()).ifDeletingEntity(uuid);
+//        new ServiceStarterLogs<>(logger, new LocalityDto()).ifDeletingEntity(uuid);
         localityRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {

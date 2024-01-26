@@ -3,7 +3,6 @@ package Tshishi.Chameleon.HumanResources.Business.Services;
 import Tshishi.Chameleon.Common.Interface.IdentifiedService;
 import Tshishi.Chameleon.HumanResources.Business.Dtos.CountryDto;
 import Tshishi.Chameleon.HumanResources.Business.Mappers.CountryMapper;
-import Tshishi.Chameleon.HumanResources.Business.Services.Common.ServiceStarterLogs;
 import Tshishi.Chameleon.HumanResources.DataAccess.Entities.Country;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.CountryRepository;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,7 @@ public class CountryService implements IdentifiedService<CountryDto, UUID> {
 
     @Override
     public CountryDto addEntity(CountryDto dto) {
-        new ServiceStarterLogs<>(logger, dto).ifAddingEntity();
+//        new ServiceStarterLogs<>(logger, dto).ifAddingEntity();
         countryRepository.findCountryByName(dto.getName().toUpperCase())
                 .ifPresentOrElse(
                         value -> {
@@ -47,7 +46,7 @@ public class CountryService implements IdentifiedService<CountryDto, UUID> {
     @Override
     public CountryDto readEntity(UUID uuid) {
         CountryDto countryDto = new CountryDto();
-        new ServiceStarterLogs<>(logger, countryDto).ifReadingEntity(uuid);
+//        new ServiceStarterLogs<>(logger, countryDto).ifReadingEntity(uuid);
         countryRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
@@ -66,13 +65,13 @@ public class CountryService implements IdentifiedService<CountryDto, UUID> {
 
     @Override
     public List<CountryDto> readAllEntities() {
-        new ServiceStarterLogs<>(logger, new CountryDto()).ifReadingAllEntity();
+//        new ServiceStarterLogs<>(logger, new CountryDto()).ifReadingAllEntity();
         return countryMapper.toDtos(countryRepository.findAll());
     }
 
     @Override
     public CountryDto updateEntity(CountryDto countryDto, UUID uuid) {
-        new ServiceStarterLogs<>(logger, countryDto).ifUpdatingEntity(uuid);
+//        new ServiceStarterLogs<>(logger, countryDto).ifUpdatingEntity(uuid);
         countryRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
@@ -94,7 +93,7 @@ public class CountryService implements IdentifiedService<CountryDto, UUID> {
 
     @Override
     public void deleteEntity(UUID uuid) {
-        new ServiceStarterLogs<>(logger, new CountryDto()).ifDeletingEntity(uuid);
+//        new ServiceStarterLogs<>(logger, new CountryDto()).ifDeletingEntity(uuid);
         countryRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {

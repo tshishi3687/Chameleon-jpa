@@ -3,7 +3,9 @@ package Tshishi.Chameleon.HumanResources.Business.Services;
 import Tshishi.Chameleon.Common.Interface.IdentifiedService;
 import Tshishi.Chameleon.HumanResources.Business.Dtos.RolesDto;
 import Tshishi.Chameleon.HumanResources.Business.Mappers.RolesMapper;
-import Tshishi.Chameleon.HumanResources.Business.Services.Common.ServiceStarterLogs;
+import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.LoggerStep;
+import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.LoggerTypes;
+import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.ServiceStarterLogs;
 import Tshishi.Chameleon.HumanResources.DataAccess.Entities.Roles;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.RolesRepository;
 import org.springframework.stereotype.Service;
@@ -18,27 +20,24 @@ public class RolesService implements IdentifiedService<RolesDto, UUID> {
     private final static Logger logger = Logger.getLogger(RolesService.class.getSimpleName());
     private final RolesRepository rolesRepository;
     private final RolesMapper rolesMapper = new RolesMapper();
-    private String errorMessage;
+    private final ServiceStarterLogs serviceStarterLogs;
 
     public RolesService(RolesRepository rolesRepository) {
         this.rolesRepository = rolesRepository;
+        this.serviceStarterLogs = new ServiceStarterLogs();
     }
 
     @Override
     public RolesDto addEntity(RolesDto dto) {
-        new ServiceStarterLogs<>(logger, dto).ifAddingEntity();
+        serviceStarterLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, dto, null);
         rolesRepository.findRolesByName(dto.getName())
                 .ifPresentOrElse(
-                        value -> {
-                            dto.setId(value.getId());
-                            dto.setName(value.getName());
-                            logger.warning(String.format("%s : \"%s\" existed with id : %s.", value.getClass().getSimpleName(), dto.getName(), dto.getId()));
-                        },
+                        value -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.ADDING_ENTITY, dto, value.getId()),
                         () -> {
                             Roles roles = rolesRepository.save(rolesMapper.toEntity(dto));
                             dto.setId(roles.getId());
                             dto.setName(roles.getName());
-                            logger.info(String.format("The roles \"%s\" was successfully registered.", dto.getClass().getSimpleName()));
+                            serviceStarterLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.ADDING_ENTITY, dto, dto.getId());
                         }
                 );
         return dto;
@@ -46,66 +45,53 @@ public class RolesService implements IdentifiedService<RolesDto, UUID> {
 
     @Override
     public RolesDto readEntity(UUID uuid) {
-        RolesDto rolesDto = new RolesDto();
-        new ServiceStarterLogs<>(logger, rolesDto).ifReadingEntity(uuid);
+        RolesDto dto = new RolesDto();
+        serviceStarterLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ENTITY, dto, uuid);
         rolesRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
-                            rolesDto.setId(value.getId());
-                            rolesDto.setName(value.getName());
-                            logger.info(String.format("%s with id : %s was found and sent", value.getClass().getSimpleName(), uuid));
+                            dto.setId(value.getId());
+                            dto.setName(value.getName());
+                            serviceStarterLogs.logsConstruction(LoggerStep.SUCCESS,LoggerTypes.READING_ENTITY, dto, dto.getId());
                         },
-                        () -> {
-                            errorMessage = String.format("%s with id : %s NOT FOUND!", "This roles", uuid);
-                            logger.severe(errorMessage);
-                            throw new RuntimeException(errorMessage);
-                        }
+                        () -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR,LoggerTypes.READING_ENTITY, dto, uuid)
                 );
-        return rolesDto;
+        return dto;
     }
 
     @Override
     public List<RolesDto> readAllEntities() {
-        new ServiceStarterLogs<>(logger, new RolesDto()).ifReadingAllEntity();
+        serviceStarterLogs.logsConstruction(LoggerStep.TRY,LoggerTypes.READING_ALL_ENTITY, new RolesDto(), null);
         return rolesMapper.toDtos(rolesRepository.findAll());
     }
 
     @Override
-    public RolesDto updateEntity(RolesDto rolesDto, UUID uuid) {
-        new ServiceStarterLogs<>(logger, rolesDto).ifUpdatingEntity(uuid);
+    public RolesDto updateEntity(RolesDto dto, UUID uuid) {
+        serviceStarterLogs.logsConstruction(LoggerStep.TRY,LoggerTypes.UPDATING_ENTITY, dto, uuid);
         rolesRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
-                            logger.info(String.format("%s with id : %s was found", value.getClass().getSimpleName(), uuid));
-                            value.setName(rolesDto.getName().toUpperCase());
+                            value.setName(dto.getName().toUpperCase());
                             Roles roles = rolesRepository.save(value);
-                            rolesDto.setId(roles.getId());
-                            rolesDto.setName(roles.getName());
-                            logger.info(String.format("%s with id : %s was UPDATED.", value.getClass().getSimpleName(), uuid));
+                            dto.setId(roles.getId());
+                            dto.setName(roles.getName());
+                            serviceStarterLogs.logsConstruction(LoggerStep.SUCCESS,LoggerTypes.UPDATING_ENTITY, dto, dto.getId());
                         },
-                        () -> {
-                            errorMessage = String.format("%s with id : %s was not found. UPDATE FAIL!", "This Roles", uuid);
-                            logger.severe(errorMessage);
-                            throw new RuntimeException(errorMessage);
-                        }
+                        () -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR,LoggerTypes.UPDATING_ENTITY, dto, uuid)
                 );
-        return rolesDto;
+        return dto;
     }
 
     @Override
     public void deleteEntity(UUID uuid) {
-        new ServiceStarterLogs<>(logger, new RolesDto()).ifDeletingEntity(uuid);
+        serviceStarterLogs.logsConstruction(LoggerStep.TRY,LoggerTypes.DELETING_ENTITY, new RolesDto(), uuid);
         rolesRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
                             rolesRepository.delete(value);
-                            logger.info(String.format("%s with id : %s was found and deleted.",value.getClass().getSimpleName(), uuid));
+                            logger.info(String.format("%s with id : %s was found and deleted.", value.getClass().getSimpleName(), uuid));
                         },
-                        () -> {
-                            errorMessage = String.format("%s with id : %s was not found. DELETE FAIL!", "This Roles", uuid);
-                            logger.severe(errorMessage);
-                            throw new RuntimeException(errorMessage);
-                        }
+                        () -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR,LoggerTypes.DELETING_ENTITY, new RolesDto(), uuid)
                 );
     }
 }
