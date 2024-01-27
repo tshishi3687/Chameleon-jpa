@@ -1,6 +1,7 @@
 package Tshishi.Chameleon.HumanResources.Business.Services;
 
 import Tshishi.Chameleon.Common.Interface.IdentifiedService;
+import Tshishi.Chameleon.HumanResources.Business.Dtos.GetUsersByMailOrPhone;
 import Tshishi.Chameleon.HumanResources.Business.Dtos.UsersDto;
 import Tshishi.Chameleon.HumanResources.Business.Mappers.*;
 import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.LoggerStep;
@@ -137,6 +138,23 @@ public class UsersService implements IdentifiedService<UsersDto, UUID> {
                         () -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, dto.get(), uuid)
                 );
         serviceStarterLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.READING_ENTITY, dto.get(), dto.get().getId());
+        return dto.get();
+    }
+
+
+    public UsersDto readEntityByMailOrPhone(GetUsersByMailOrPhone getUsersByMailOrPhone) {
+        AtomicReference<UsersDto> dto = new AtomicReference<>();
+        serviceStarterLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READIND_ENTITY_By_MAIL_OR_PHONE, getUsersByMailOrPhone, null);
+        contactDetailsRepository.findByMailOrPhone(getUsersByMailOrPhone.getName(), getUsersByMailOrPhone.getName())
+                .ifPresentOrElse(
+                        value -> {
+                            UsersDto usersDto = usersMapper.toDto(value.getUsers());
+                            usersDto.setRolesDtoList(rolesMapper.toDtos(value.getUsers().getRolesList()));
+                            usersDto.setContactDetails(contactDetailsMapper.toDtos(value.getUsers().getContactDetails()));
+                            dto.set(usersDto);
+                        },
+                        () -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READIND_ENTITY_By_MAIL_OR_PHONE, getUsersByMailOrPhone, null)
+                );
         return dto.get();
     }
 

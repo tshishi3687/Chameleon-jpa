@@ -18,6 +18,7 @@ public class ServiceStarterLogs {
             switch (loggerTypes) {
                 case ADDING_ENTITY -> logger.warning(String.format("Try to add %s with name %s.", dto.getClass().getSimpleName(), uuid));
                 case READING_ENTITY -> logger.warning(String.format("Try to get %s with id : %s.", dto.getClass().getSimpleName(), uuid));
+                case READIND_ENTITY_By_MAIL_OR_PHONE -> logger.warning(String.format("Try to get %s by mail or phone: \"%s\".", dto.getClass().getSimpleName(), dto.getName()));
                 case READING_ALL_ENTITY -> logger.warning(String.format("Get all %s", dto.getClass().getSimpleName()));
                 case UPDATING_ENTITY -> logger.warning(String.format("Try to update %s with id : %s.", dto.getClass().getSimpleName(), uuid));
                 case DELETING_ENTITY -> logger.warning(String.format("Try to delete %s with id : %s.", dto.getClass().getSimpleName(), uuid));
@@ -58,6 +59,7 @@ public class ServiceStarterLogs {
             switch (loggerTypes) {
                 case ADDING_ENTITY -> error = String.format("This %s : \"%s\" existed with id : %s. CAN'T EXIST TWICE", dto.getClass().getSimpleName(), dto.getName(), uuid);
                 case READING_ENTITY -> error = String.format("This %s with id : %s NOT FOUND!", "This roles", uuid);
+                case READIND_ENTITY_By_MAIL_OR_PHONE -> error = String.format("This %s with name : %s NOT FOUND!", dto.getClass().getSimpleName(), dto.getName());
                 case UPDATING_ENTITY -> error = String.format("This %s with id : %s was not found. UPDATE FAIL!", dto.getClass().getSimpleName(), uuid);
                 case READING_ALL_ENTITY, DELETING_ENTITY -> error = ""; // implement later
             }
