@@ -39,10 +39,18 @@ public class ServiceStarterLogs {
         }
 
         if (loggerStep.equals(LoggerStep.EXISTED)) {
+            String error = "";
             switch (loggerTypes) {
-                case ADDING_ENTITY -> logger.warning(String.format("%s : \"%s\" existed with id : %s.", dto.getClass().getSimpleName(), dto.getName(), uuid));
-                case READING_ENTITY, UPDATING_ENTITY, DELETING_ENTITY -> logger.info(""); // implement later
+                case ADDING_ENTITY -> {
+                    error = String.format("%s : \"%s\" existed with id : %s. A user can have several contact cards but each contact card must uniquely contain an email and a phone number", dto.getClass().getSimpleName(), dto.getName(), uuid);
+                    logger.warning(error);
+                }
+                case READING_ENTITY, UPDATING_ENTITY, DELETING_ENTITY -> {
+                    error = ""; // implement later
+                    logger.info(error); // implement later
+                }
             }
+            throw new RuntimeException(error);
         }
 
         if (loggerStep.equals(LoggerStep.ERROR)) {

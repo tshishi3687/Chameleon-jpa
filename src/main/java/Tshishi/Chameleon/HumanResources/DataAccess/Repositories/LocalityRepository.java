@@ -7,6 +7,5 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface LocalityRepository extends JpaRepository<Locality, UUID> {
-
     Optional<Locality> findLocalityByName(String name);
 }
