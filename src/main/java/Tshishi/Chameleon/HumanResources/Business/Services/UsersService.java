@@ -124,7 +124,20 @@ public class UsersService implements IdentifiedService<UsersDto, UUID> {
 
     @Override
     public UsersDto readEntity(UUID uuid) {
-        return null;
+        AtomicReference<UsersDto> dto = new AtomicReference<>();
+        serviceStarterLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ENTITY, new UsersDto(), uuid);
+        usersRepository.findById(uuid)
+                .ifPresentOrElse(
+                        value -> {
+                            UsersDto usersDto = usersMapper.toDto(value);
+                            usersDto.setRolesDtoList(rolesMapper.toDtos(value.getRolesList()));
+                            usersDto.setContactDetails(contactDetailsMapper.toDtos(value.getContactDetails()));
+                            dto.set(usersDto);
+                        },
+                        () -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, dto.get(), uuid)
+                );
+        serviceStarterLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.READING_ENTITY, dto.get(), dto.get().getId());
+        return dto.get();
     }
 
     @Override
