@@ -4,6 +4,7 @@ import Tshishi.Chameleon.Common.Interface.IdentifiedService;
 import Tshishi.Chameleon.HumanResources.Business.Dtos.GetUsersByMailOrPhone;
 import Tshishi.Chameleon.HumanResources.Business.Dtos.UsersDto;
 import Tshishi.Chameleon.HumanResources.Business.Mappers.*;
+import Tshishi.Chameleon.HumanResources.Business.Services.Common.Enum.UsersRoles;
 import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.LoggerStep;
 import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.LoggerTypes;
 import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.ServiceStarterLogs;
@@ -54,12 +55,19 @@ public class UsersService implements IdentifiedService<UsersDto, UUID> {
                                 value -> serviceStarterLogs.logsConstruction(LoggerStep.EXISTED, LoggerTypes.ADDING_ENTITY, dto, value.getUsers().getId()),
                                 () -> {
 
-                                    // Check roles must always exit: if existed -> take good message or -> take bad message
-                                    dto.getRolesDtoList().forEach(rolesDto -> rolesRepository.findRolesByName(rolesDto.getName())
-                                            .ifPresentOrElse(
-                                                    value -> serviceStarterLogs.logsConstruction(LoggerStep.EXISTED, LoggerTypes.READING_ENTITY, rolesDto, value.getId()),
-                                                    () -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, rolesDto, null)
-                                            ));
+                                    Roles roles = new Roles();
+                                    List<Roles> rolesList = rolesRepository.findAll();
+                                    if (!rolesList.isEmpty()) {
+
+                                        // Check roles must always exit: if existed -> take good message or -> take bad message
+                                        dto.getRolesDtoList().forEach(rolesDto -> rolesRepository.findRolesByName(rolesDto.getName())
+                                                .ifPresentOrElse(
+                                                        value -> serviceStarterLogs.logsConstruction(LoggerStep.EXISTED, LoggerTypes.READING_ENTITY, rolesDto, value.getId()),
+                                                        () -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, rolesDto, null)
+                                                ));
+                                    } else {
+                                        roles.setName(UsersRoles.SUPER_ADMIN.getRoleName());
+                                    }
 
                                     // Check country: if existed -> take it or -> create it
                                     countryRepository.findCountryByName(contact.getCountry().getName())
@@ -99,12 +107,18 @@ public class UsersService implements IdentifiedService<UsersDto, UUID> {
 
                                     Users entity = usersMapper.toEntity(dto);
                                     entity.setPassWord(bCryptPasswordEncoder.encode(dto.getPassword()));
-                                    entity.getRolesList().addAll(rolesRepository.findAllById(
-                                            dto.getRolesDtoList()
-                                                    .stream()
-                                                    .map(rolesMapper::toEntity)
-                                                    .map(Roles::getId)
-                                                    .toList()));
+
+                                    if (!rolesList.isEmpty()) {
+                                        entity.getRolesList().addAll(rolesRepository.findAllById(
+                                                dto.getRolesDtoList()
+                                                        .stream()
+                                                        .map(rolesMapper::toEntity)
+                                                        .map(Roles::getId)
+                                                        .toList()));
+                                    } else {
+                                        entity.getRolesList().add(roles);
+                                    }
+
                                     Users entitySaved = usersRepository.save(entity);
 
                                     entitySaved.getContactDetails().addAll(

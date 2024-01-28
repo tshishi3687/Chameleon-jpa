@@ -30,13 +30,14 @@ public class Users extends BaseEntity {
     @Column
     private LocalDate birthdays;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "UsersID"),
             inverseJoinColumns = @JoinColumn(name = "RolesID"))
     @ToString.Exclude
     private List<Roles> rolesList;
+
 
     @OneToMany
     private List<ContactDetails> contactDetails;
