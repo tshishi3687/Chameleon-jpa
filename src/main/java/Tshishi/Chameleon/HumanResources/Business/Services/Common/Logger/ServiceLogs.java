@@ -8,9 +8,9 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 @NoArgsConstructor
-public class ServiceStarterLogs {
+public class ServiceLogs {
 
-    private static final Logger logger = Logger.getLogger(ServiceStarterLogs.class.getSimpleName());
+    private static final Logger logger = Logger.getLogger(ServiceLogs.class.getSimpleName());
 
     public void logsConstruction(LoggerStep loggerStep, LoggerTypes loggerTypes, IdentifiedDto<UUID> dto, UUID uuid) {
 

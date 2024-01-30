@@ -6,7 +6,7 @@ import Tshishi.Chameleon.HumanResources.Business.Dtos.RolesDto;
 import Tshishi.Chameleon.HumanResources.Business.Mappers.ContactDetailsMapper;
 import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.LoggerStep;
 import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.LoggerTypes;
-import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.ServiceStarterLogs;
+import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.ServiceLogs;
 import Tshishi.Chameleon.HumanResources.DataAccess.Entities.ContactDetails;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.ContactDetailsRepository;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.CountryRepository;
@@ -24,17 +24,17 @@ public class ContactDetailsService implements IdentifiedService<ContactDetailsDt
     private final ContactDetailsRepository contactDetailsRepository;
     private final static Logger logger = Logger.getLogger(ContactDetailsService.class.getSimpleName());
     private final ContactDetailsMapper contactDetailsMapper;
-    private final ServiceStarterLogs serviceStarterLogs;
+    private final ServiceLogs serviceLogs;
 
     public ContactDetailsService(ContactDetailsRepository contactDetailsRepository, CountryRepository countryRepository, LocalityRepository localityRepository) {
         this.contactDetailsRepository = contactDetailsRepository;
-        this.serviceStarterLogs = new ServiceStarterLogs();
+        this.serviceLogs = new ServiceLogs();
         this.contactDetailsMapper = new ContactDetailsMapper(countryRepository, localityRepository);
     }
 
     @Override
     public ContactDetailsDto addEntity(ContactDetailsDto dto) {
-        serviceStarterLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, dto, null);
+        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, dto, null);
 //        if (contactDetailsRepository.countAllByUsers_Id(dto.getUsers().getId()) >= 3) {
 //            String errorMessage = String.format("The users with id : %s already has 3 contact Details saved. MAXIMUM AUTHORIZED IS 3 FOR USERS", dto.getUsers().getId());
 //            logger.warning(errorMessage);
@@ -50,49 +50,49 @@ public class ContactDetailsService implements IdentifiedService<ContactDetailsDt
     @Override
     public ContactDetailsDto readEntity(UUID uuid) {
         AtomicReference<ContactDetailsDto> dto = new AtomicReference<>();
-        serviceStarterLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ENTITY, dto.get(), uuid);
+        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ENTITY, dto.get(), uuid);
         contactDetailsRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
                             dto.set(contactDetailsMapper.toDto(value));
-                            serviceStarterLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.READING_ENTITY, dto.get(), dto.get().getId());
+                            serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.READING_ENTITY, dto.get(), dto.get().getId());
                         },
-                        () -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, dto.get(), uuid)
+                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, dto.get(), uuid)
                 );
         return dto.get();
     }
 
     @Override
     public List<ContactDetailsDto> readAllEntities() {
-        serviceStarterLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ALL_ENTITY, new RolesDto(), null);
+        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ALL_ENTITY, new RolesDto(), null);
         return contactDetailsMapper.toDtos(contactDetailsRepository.findAll());
     }
 
     @Override
     public ContactDetailsDto updateEntity(ContactDetailsDto dto, UUID uuid) {
-        serviceStarterLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.UPDATING_ENTITY, dto, uuid);
+        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.UPDATING_ENTITY, dto, uuid);
         contactDetailsRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
                             ContactDetails contactDetails = contactDetailsMapper.toEntity(dto);
                             dto.setId(contactDetailsRepository.save(contactDetails).getId());
-                            serviceStarterLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.UPDATING_ENTITY, dto, dto.getId());
+                            serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.UPDATING_ENTITY, dto, dto.getId());
                         },
-                        () -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.UPDATING_ENTITY, dto, uuid)
+                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.UPDATING_ENTITY, dto, uuid)
                 );
         return dto;
     }
 
     @Override
     public void deleteEntity(UUID uuid) {
-        serviceStarterLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.DELETING_ENTITY, new RolesDto(), uuid);
+        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.DELETING_ENTITY, new RolesDto(), uuid);
         contactDetailsRepository.findById(uuid)
                 .ifPresentOrElse(
                         value -> {
                             contactDetailsRepository.delete(value);
-                            serviceStarterLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.DELETING_ENTITY, new ContactDetailsDto(), uuid);
+                            serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.DELETING_ENTITY, new ContactDetailsDto(), uuid);
                         },
-                        () -> serviceStarterLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.DELETING_ENTITY, new RolesDto(), uuid)
+                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.DELETING_ENTITY, new RolesDto(), uuid)
                 );
     }
 }
