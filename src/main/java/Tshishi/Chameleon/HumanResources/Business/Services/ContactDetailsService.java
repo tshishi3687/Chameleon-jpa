@@ -29,7 +29,7 @@ public class ContactDetailsService implements IdentifiedService<ContactDetailsDt
     public ContactDetailsService(ContactDetailsRepository contactDetailsRepository, CountryRepository countryRepository, LocalityRepository localityRepository) {
         this.contactDetailsRepository = contactDetailsRepository;
         this.serviceLogs = new ServiceLogs();
-        this.contactDetailsMapper = new ContactDetailsMapper(countryRepository, localityRepository);
+        this.contactDetailsMapper = new ContactDetailsMapper();
     }
 
     @Override

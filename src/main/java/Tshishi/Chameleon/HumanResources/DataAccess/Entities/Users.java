@@ -24,6 +24,12 @@ public class Users extends BaseEntity {
     @Column
     private String lastName;
 
+    @Column(unique = true)
+    private String mail;
+
+    @Column(unique = true)
+    private String phone;
+
     @Column
     private String passWord;
 

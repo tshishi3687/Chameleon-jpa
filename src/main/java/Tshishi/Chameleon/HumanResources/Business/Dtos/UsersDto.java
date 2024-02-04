@@ -1,6 +1,7 @@
 package Tshishi.Chameleon.HumanResources.Business.Dtos;
 
 import Tshishi.Chameleon.Common.Interface.IdentifiedDto;
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,10 @@ public class UsersDto implements IdentifiedDto<UUID> {
     private String lastName;
 
     private LocalDate birthDay;
+
+    private String mail;
+
+    private String phone;
 
     private String password;
 

@@ -10,6 +10,9 @@ import java.util.UUID;
 
 public class UsersMapper implements IdentifiedMapper<UsersDto, Users> {
 
+    private final RolesMapper rolesMapper = new RolesMapper();
+    private final ContactDetailsMapper contactDetailsMapper = new ContactDetailsMapper();
+
     @Override
     public UsersDto toDto(Users users) {
         return new UsersDto(
@@ -17,9 +20,11 @@ public class UsersMapper implements IdentifiedMapper<UsersDto, Users> {
                 users.getFirstName(),
                 users.getLastName(),
                 users.getBirthdays(),
+                users.getMail(),
+                users.getPhone(),
                 null,
-                new ArrayList<>(),
-                new ArrayList<>()
+                rolesMapper.toDtos(users.getRolesList()),
+                contactDetailsMapper.toDtos(users.getContactDetails())
         );
     }
 
@@ -29,6 +34,8 @@ public class UsersMapper implements IdentifiedMapper<UsersDto, Users> {
                 UUID.randomUUID(),
                 usersDto.getFirstName(),
                 usersDto.getLastName(),
+                usersDto.getMail(),
+                usersDto.getPhone(),
                 null,
                 usersDto.getBirthDay(),
                 new ArrayList<>(),

@@ -14,12 +14,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ContactDetails extends BaseEntity {
 
-    @Column(unique = true)
-    private String mail;
-
-    @Column(unique = true)
-    private String phone;
-
     @Column
     private String address;
 

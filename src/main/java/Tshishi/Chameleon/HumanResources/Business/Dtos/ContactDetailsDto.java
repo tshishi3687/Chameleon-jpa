@@ -12,10 +12,6 @@ public class ContactDetailsDto implements IdentifiedDto<UUID> {
 
     private UUID id;
 
-    private String mail;
-
-    private String phone;
-
     private String address;
 
     private String number;
@@ -26,6 +22,6 @@ public class ContactDetailsDto implements IdentifiedDto<UUID> {
 
     @Override
     public String getName() {
-        return null;
+        return  this.address + " " + this.number;
     }
 }

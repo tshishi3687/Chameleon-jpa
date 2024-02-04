@@ -7,5 +7,4 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ContactDetailsRepository extends JpaRepository<ContactDetails, UUID> {
-   Optional<ContactDetails> findByMailOrPhone(String mail, String phone);
 }

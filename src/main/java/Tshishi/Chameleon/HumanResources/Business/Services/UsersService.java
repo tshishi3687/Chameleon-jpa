@@ -1,22 +1,19 @@
 package Tshishi.Chameleon.HumanResources.Business.Services;
 
 import Tshishi.Chameleon.Common.Interface.IdentifiedService;
-import Tshishi.Chameleon.HumanResources.Business.Dtos.ContactDetailsDto;
-import Tshishi.Chameleon.HumanResources.Business.Dtos.GetUsersByMailOrPhone;
-import Tshishi.Chameleon.HumanResources.Business.Dtos.RolesDto;
-import Tshishi.Chameleon.HumanResources.Business.Dtos.UsersDto;
+import Tshishi.Chameleon.HumanResources.Business.Dtos.*;
 import Tshishi.Chameleon.HumanResources.Business.Mappers.*;
 import Tshishi.Chameleon.HumanResources.Business.Services.Common.Enum.UsersRoles;
 import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.LoggerStep;
 import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.LoggerTypes;
 import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.ServiceLogs;
-import Tshishi.Chameleon.HumanResources.DataAccess.Entities.ContactDetails;
-import Tshishi.Chameleon.HumanResources.DataAccess.Entities.Roles;
-import Tshishi.Chameleon.HumanResources.DataAccess.Entities.Users;
+import Tshishi.Chameleon.HumanResources.DataAccess.Entities.*;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.*;
+import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -24,190 +21,127 @@ import java.util.concurrent.atomic.AtomicReference;
 @Service
 public class UsersService implements IdentifiedService<UsersDto, UUID> {
 
-    private final UsersRepository usersRepository;
-    private final ContactDetailsRepository contactDetailsRepository;
-    private final RolesRepository rolesRepository;
-    private final LocalityRepository localityRepository;
-    private final CountryRepository countryRepository;
     private final UsersMapper usersMapper = new UsersMapper();
-    private final RolesMapper rolesMapper = new RolesMapper();
-    private final ContactDetailsMapper contactDetailsMapper;
-    private final LocalityMapper localityMapper = new LocalityMapper();
-    private final CountryMapper countryMapper = new CountryMapper();
+    private final UsersRepository usersRepository;
     private final ServiceLogs serviceLogs;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final RolesRepository rolesRepository;
+    private final RolesMapper rolesMapper = new RolesMapper();
+    private final ContactDetailsRepository contactDetailsRepository;
+    private final ContactDetailsMapper contactDetailsMapper;
+    private final LocalityRepository localityRepository;
+    private final CountryRepository countryRepository;
 
-    public UsersService(UsersRepository usersRepository, ContactDetailsRepository contactDetailsRepository, LocalityRepository localityRepository1, CountryRepository countryRepository1, LocalityRepository localityRepository, CountryRepository countryRepository, RolesRepository rolesRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+
+    public UsersService(UsersRepository usersRepository, BCryptPasswordEncoder bCryptPasswordEncoder, RolesRepository rolesRepository, ContactDetailsRepository contactDetailsRepository, LocalityRepository localityRepository, CountryRepository countryRepository) {
         this.usersRepository = usersRepository;
-        this.contactDetailsRepository = contactDetailsRepository;
-        this.localityRepository = localityRepository1;
-        this.countryRepository = countryRepository1;
-        this.rolesRepository = rolesRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.rolesRepository = rolesRepository;
+        this.contactDetailsRepository = contactDetailsRepository;
+        this.contactDetailsMapper = new ContactDetailsMapper();
+        this.localityRepository = localityRepository;
+        this.countryRepository = countryRepository;
         this.serviceLogs = new ServiceLogs();
-        this.contactDetailsMapper = new ContactDetailsMapper(countryRepository, localityRepository);
     }
 
     @Override
-    public UsersDto addEntity(UsersDto dto) {
-        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, dto, null);
-        AtomicReference<UsersDto> usersDto = new AtomicReference<>();
-        dto.getContactDetails().forEach(contact ->
-                contactDetailsRepository.findByMailOrPhone(contact.getMail(), contact.getPhone())
-                        .ifPresentOrElse(
-                                value -> serviceLogs.logsConstruction(LoggerStep.EXISTED, LoggerTypes.ADDING_ENTITY, dto, value.getUsers().getId()),
-                                () -> {
+    @Transactional
+    public UsersDto addEntity(UsersDto usersDto) {
+        AtomicReference<Users> usersAtomicReference = new AtomicReference<>();
+        usersRepository.findUsersByMailOrPhone(usersDto.getMail(), usersDto.getPhone())
+                .ifPresentOrElse(
+                        value -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.ADDING_ENTITY, usersDto, value.getId()),
+                        () -> {
+                            List<Roles> rolesList = rolesRepository.findAll();
 
-                                    Roles roles = new Roles();
-                                    List<Roles> rolesList = rolesRepository.findAll();
-                                    if (!rolesList.isEmpty()) {
+                            usersAtomicReference.set(usersMapper.toEntity(usersDto));
 
-                                        // Check roles must always exit: if existed -> take good message or -> take bad message
-                                        dto.getRolesDtoList().forEach(rolesDto -> rolesRepository.findRolesByName(rolesDto.getName())
-                                                .ifPresentOrElse(
-                                                        value -> serviceLogs.logsConstruction(LoggerStep.EXISTED, LoggerTypes.READING_ENTITY, rolesDto, value.getId()),
-                                                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, rolesDto, null)
-                                                ));
-                                    } else {
-                                        roles.setName(UsersRoles.SUPER_ADMIN.getRoleName());
+                            // Check roles
+                            serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, usersDto.getRolesDtoList().stream().findFirst().orElseThrow(), null);
+                            if (rolesList.isEmpty()) {
+                                // First user using app
+                                Roles roles = new Roles();
+                                roles.setName(UsersRoles.SUPER_ADMIN.getRoleName());
+                                usersAtomicReference.get().getRolesList().add(rolesRepository.save(roles));
+                                serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.ADDING_ENTITY, new RolesDto(), usersAtomicReference.get().getRolesList().stream().findFirst().orElseThrow().getId());
+                            } else {
+                                // Check if rolesDto not existed
+                                usersDto.getRolesDtoList().forEach(rolesDto -> {
+                                    if (!rolesRepository.existsById(rolesDto.getId())) {
+                                        serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.ADDING_ENTITY, rolesDto, rolesDto.getId());
                                     }
+                                });
+                            }
 
-                                    // Check country: if existed -> take it or -> create it
-                                    countryRepository.findCountryByName(contact.getCountry().getName())
-                                            .ifPresentOrElse(
-                                                    value -> {
-                                                        contact.getCountry().setId(value.getId());
-                                                        contact.getCountry().setName(value.getName());
-                                                    },
-                                                    () -> contact.setCountry(
-                                                            countryMapper.toDto(
-                                                                    countryRepository.save(
-                                                                            countryMapper.toEntity(
-                                                                                    contact.getCountry()
-                                                                            )
-                                                                    )
-                                                            )
-                                                    )
-                                            );
+                            // Crypte password
+                            usersAtomicReference.get().setPassWord(bCryptPasswordEncoder.encode(usersDto.getPassword()));
 
-                                    // Check locality: if existed -> take it or -> create it
-                                    localityRepository.findLocalityByName(contact.getLocality().getName())
-                                            .ifPresentOrElse(
-                                                    value -> {
-                                                        contact.getLocality().setId(value.getId());
-                                                        contact.getLocality().setName(value.getName());
-                                                    },
-                                                    () -> contact.setLocality(
-                                                            localityMapper.toDto(
-                                                                    localityRepository.save(
-                                                                            localityMapper.toEntity(
-                                                                                    contact.getLocality()
-                                                                            )
-                                                                    )
-                                                            )
-                                                    )
-                                            );
+                            // Add roles
+                            usersAtomicReference.get().getRolesList().addAll(
+                                    rolesRepository.findAllByIdIn(
+                                            usersDto.getRolesDtoList().stream()
+                                                    .filter(rolesDto -> !rolesDto.getName().equals(UsersRoles.SUPER_ADMIN.getRoleName()))
+                                                    .map(RolesDto::getId).toList()
+                                    )
+                            );
 
-                                    Users entity = usersMapper.toEntity(dto);
-                                    entity.setPassWord(bCryptPasswordEncoder.encode(dto.getPassword()));
+                            // creat success logs
+                            usersAtomicReference.get().getRolesList().forEach( roles -> serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.READING_ENTITY, new RolesDto(), roles.getId()));
 
-                                    if (!rolesList.isEmpty()) {
-                                        entity.getRolesList().addAll(rolesRepository.findAllById(
-                                                dto.getRolesDtoList()
-                                                        .stream()
-                                                        .map(rolesMapper::toEntity)
-                                                        .map(Roles::getId)
-                                                        .toList()));
-                                    } else {
-                                        entity.getRolesList().add(roles);
+                            // add contact details
+                            List<ContactDetails> contactDetailsList = new ArrayList<>();
+                            usersDto.getContactDetails().forEach(
+                                    contactDetailsDto -> {
+                                        // mapping contact detail
+                                        ContactDetails contactDetails = contactDetailsMapper.toEntity(contactDetailsDto);
+
+                                        // set locality
+                                        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ENTITY, contactDetailsDto.getLocality(), contactDetailsDto.getLocality().getId());
+                                        contactDetails.setLocality(localityRepository.findById(contactDetailsDto.getLocality().getId())
+                                                .orElse(localityRepository.save(new Locality(contactDetailsDto.getLocality().getName())))
+                                        );
+
+                                        // set Country
+                                        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ENTITY, contactDetailsDto.getCountry(), contactDetailsDto.getCountry().getId());
+                                        contactDetails.setCountry(countryRepository.findById(contactDetailsDto.getCountry().getId())
+                                                .orElse(countryRepository.save(new Country(contactDetailsDto.getCountry().getName())))
+                                        );
+
+                                        // set and add contact details
+                                        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, contactDetailsMapper.toDto(contactDetails), null);
+                                        ContactDetails contactDetails1 = contactDetailsRepository.save(contactDetails);
+
+                                        contactDetailsList.add(contactDetails1);
+
+                                        // set success logs
+                                        serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.ADDING_ENTITY, new LocalityDto(), contactDetails.getLocality().getId());
+                                        serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.ADDING_ENTITY, new CountryDto(), contactDetails.getCountry().getId());
+                                        serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.ADDING_ENTITY, new ContactDetailsDto(), contactDetails1.getId());
                                     }
-
-                                    Users entitySaved = usersRepository.save(entity);
-
-                                    entitySaved.getContactDetails().addAll(
-                                            contactDetailsRepository.saveAll(
-                                                    dto.getContactDetails()
-                                                            .stream()
-                                                            .map(contactDetailsMapper::toEntity)
-                                                            .peek(contactDetails1 -> contactDetails1.setUsers(entitySaved))
-                                                            .toList()));
-                                    usersDto.set(usersMapper.toDto(usersRepository.save(entitySaved)));
-                                    serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.ADDING_ENTITY, usersDto.get(), usersDto.get().getId());
-                                }
-                        ));
-
-
-        return usersDto.get();
+                            );
+                            usersAtomicReference.get().setContactDetails(contactDetailsList);
+                        }
+                );
+        UsersDto usersDto1 = usersMapper.toDto(usersRepository.save(usersAtomicReference.get()));
+        usersDto1.setRolesDtoList(rolesMapper.toDtos(usersAtomicReference.get().getRolesList()));
+        usersDto1.setContactDetails(contactDetailsMapper.toDtos(usersAtomicReference.get().getContactDetails()));
+        serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.ADDING_ENTITY, usersDto1, usersDto1.getId());
+        return usersDto1;
     }
 
     @Override
     public UsersDto readEntity(UUID uuid) {
-        AtomicReference<UsersDto> dto = new AtomicReference<>();
-        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ENTITY, new UsersDto(), uuid);
-        usersRepository.findById(uuid)
-                .ifPresentOrElse(
-                        value -> {
-                            UsersDto usersDto = usersMapper.toDto(value);
-                            usersDto.setRolesDtoList(rolesMapper.toDtos(value.getRolesList()));
-                            usersDto.setContactDetails(contactDetailsMapper.toDtos(value.getContactDetails()));
-                            dto.set(usersDto);
-                        },
-                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, dto.get(), uuid)
-                );
-        serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.READING_ENTITY, dto.get(), dto.get().getId());
-        return dto.get();
-    }
-
-
-    public UsersDto readEntityByMailOrPhone(GetUsersByMailOrPhone getUsersByMailOrPhone) {
-        AtomicReference<UsersDto> dto = new AtomicReference<>();
-        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READIND_ENTITY_By_MAIL_OR_PHONE, getUsersByMailOrPhone, null);
-        contactDetailsRepository.findByMailOrPhone(getUsersByMailOrPhone.getName(), getUsersByMailOrPhone.getName())
-                .ifPresentOrElse(
-                        value -> {
-                            UsersDto usersDto = usersMapper.toDto(value.getUsers());
-                            usersDto.setRolesDtoList(rolesMapper.toDtos(value.getUsers().getRolesList()));
-                            usersDto.setContactDetails(contactDetailsMapper.toDtos(value.getUsers().getContactDetails()));
-                            dto.set(usersDto);
-                        },
-                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READIND_ENTITY_By_MAIL_OR_PHONE, getUsersByMailOrPhone, null)
-                );
-        return dto.get();
+        return null;
     }
 
     @Override
     public List<UsersDto> readAllEntities() {
-        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ALL_ENTITY, new UsersDto(), null);
-        return usersMapper.toDtos(usersRepository.findAll());
+        return null;
     }
 
     @Override
-    public UsersDto updateEntity(UsersDto dto, UUID uuid) {
-        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.UPDATING_ENTITY, dto, uuid);
-        AtomicReference<UsersDto> usersDtoAtomicReference = new AtomicReference<>();
-        usersRepository.findById(uuid)
-                .ifPresentOrElse(
-                        value -> {
-                            //TODO: critical
-                            value.setFirstName(dto.getFirstName());
-                            value.setLastName(dto.getLastName());
-                            value.setBirthdays(dto.getBirthDay());
-
-                            value.setRolesList(updateRoles(value, dto.getRolesDtoList()));
-
-                            // Mise à jour des coordonnées de contact
-                            value.setContactDetails(updateContactDetails(value, dto.getContactDetails()));
-
-                            // Enregistrez les modifications dans la base de données
-                            Users updatedUser = usersRepository.save(value);
-
-                            UsersDto updatedUserDto = usersMapper.toDto(updatedUser);
-                            usersDtoAtomicReference.set(updatedUserDto);
-                            serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.UPDATING_ENTITY, updatedUserDto, updatedUserDto.getId());
-                        },
-                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.UPDATING_ENTITY, dto, uuid)
-                );
-        return usersDtoAtomicReference.get();
+    public UsersDto updateEntity(UsersDto usersDto, UUID uuid) {
+        return null;
     }
 
     @Override
@@ -215,40 +149,7 @@ public class UsersService implements IdentifiedService<UsersDto, UUID> {
 
     }
 
-    private List<Roles> updateRoles(Users user, List<RolesDto> rolesDtoList) {
-        UUID superAdminUUId = rolesRepository.findRolesByName(UsersRoles.SUPER_ADMIN.getRoleName()).orElseThrow().getId();
-        List<Roles> currentRoles = user.getRolesList();
-
-        List<Roles> newRoles = rolesDtoList.stream()
-                .map(rolesMapper::toEntity)
-                .toList();
-        currentRoles.removeIf(role -> !newRoles.contains(role) && !role.getId().equals(superAdminUUId));
-
-        newRoles.stream()
-                .filter(role -> !currentRoles.contains(role))
-                .forEach(currentRoles::add);
-
-        return newRoles;
+    public UsersDto readEntityByMailOrPhone(GetUsersByMailOrPhone getUsersByMailOrPhone) {
+        return null;
     }
-
-
-    private List<ContactDetails> updateContactDetails(Users user, List<ContactDetailsDto> contactDetailsDtoList) {
-        List<ContactDetails> currentContactDetails = user.getContactDetails();
-
-        List<ContactDetails> newContactDetails = contactDetailsDtoList.stream()
-                .map(contactDetailsMapper::toEntity)
-                .toList();
-
-        currentContactDetails.removeIf(contactDetail -> !newContactDetails.contains(contactDetail));
-
-        newContactDetails.stream()
-                .filter(contactDetail -> !currentContactDetails.contains(contactDetail))
-                .forEach(newContactDetail -> {
-                    newContactDetail.setUsers(user);
-                    currentContactDetails.add(newContactDetail);
-                });
-
-        return newContactDetails;
-    }
-
 }
