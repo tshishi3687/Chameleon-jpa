@@ -1,21 +1,21 @@
 package Tshishi.Chameleon.HumanResources.Business.Mappers;
 
 import Tshishi.Chameleon.Common.Interface.IdentifiedMapper;
-import Tshishi.Chameleon.HumanResources.Business.Dtos.UsersDto;
+import Tshishi.Chameleon.HumanResources.Business.Dtos.UsersCreatedDto;
 import Tshishi.Chameleon.HumanResources.DataAccess.Entities.Users;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class UsersMapper implements IdentifiedMapper<UsersDto, Users> {
+public class UsersCreatedMapper implements IdentifiedMapper<UsersCreatedDto, Users> {
 
     private final RolesMapper rolesMapper = new RolesMapper();
     private final ContactDetailsMapper contactDetailsMapper = new ContactDetailsMapper();
 
     @Override
-    public UsersDto toDto(Users users) {
-        return new UsersDto(
+    public UsersCreatedDto toDto(Users users) {
+        return new UsersCreatedDto(
                 users.getId(),
                 users.getFirstName(),
                 users.getLastName(),
@@ -29,15 +29,15 @@ public class UsersMapper implements IdentifiedMapper<UsersDto, Users> {
     }
 
     @Override
-    public Users toEntity(UsersDto usersDto) {
+    public Users toEntity(UsersCreatedDto usersCreatedDto) {
         return new Users(
                 UUID.randomUUID(),
-                usersDto.getFirstName(),
-                usersDto.getLastName(),
-                usersDto.getMail(),
-                usersDto.getPhone(),
+                usersCreatedDto.getFirstName(),
+                usersCreatedDto.getLastName(),
+                usersCreatedDto.getMail(),
+                usersCreatedDto.getPhone(),
                 null,
-                usersDto.getBirthDay(),
+                usersCreatedDto.getBirthDay(),
                 new ArrayList<>(),
                 new ArrayList<>()
 
@@ -45,7 +45,7 @@ public class UsersMapper implements IdentifiedMapper<UsersDto, Users> {
     }
 
     @Override
-    public List<UsersDto> toDtos(List<Users> users) {
+    public List<UsersCreatedDto> toDtos(List<Users> users) {
         return IdentifiedMapper.super.toDtos(users);
     }
 }

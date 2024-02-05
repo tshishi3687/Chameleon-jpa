@@ -1,7 +1,6 @@
 package Tshishi.Chameleon.HumanResources.Business.Dtos;
 
 import Tshishi.Chameleon.Common.Interface.IdentifiedDto;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +14,7 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UsersDto implements IdentifiedDto<UUID> {
+public class UsersCreatedDto implements IdentifiedDto<UUID> {
 
     private UUID id;
 

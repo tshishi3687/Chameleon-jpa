@@ -4,5 +4,5 @@ public enum LoggerStep {
     TRY,
     EXISTED,
     SUCCESS,
-    ERROR,
+    ERROR
 }
