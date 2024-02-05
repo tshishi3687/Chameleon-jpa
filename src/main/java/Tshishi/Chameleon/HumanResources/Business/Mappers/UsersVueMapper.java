@@ -1,15 +1,17 @@
 package Tshishi.Chameleon.HumanResources.Business.Mappers;
 
+import Tshishi.Chameleon.Common.Interface.IdentifiedMapper;
 import Tshishi.Chameleon.HumanResources.Business.Dtos.UsersVueDto;
 import Tshishi.Chameleon.HumanResources.DataAccess.Entities.Users;
 
 import java.util.List;
 
-public class UsersVueMapper {
+public class UsersVueMapper implements IdentifiedMapper<UsersVueDto, Users> {
 
     private final RolesMapper rolesMapper = new RolesMapper();
     private final ContactDetailsMapper contactDetailsMapper = new ContactDetailsMapper();
 
+    @Override
     public UsersVueDto toDto(Users users) {
         return new UsersVueDto(
                 users.getId(),
@@ -23,6 +25,12 @@ public class UsersVueMapper {
                 );
     }
 
+    @Override
+    public Users toEntity(UsersVueDto usersVueDto) {
+        return null;
+    }
+
+    @Override
     public List<UsersVueDto> toDtos(List<Users> entities) {
         return entities.stream().map(this::toDto).toList();
     }
