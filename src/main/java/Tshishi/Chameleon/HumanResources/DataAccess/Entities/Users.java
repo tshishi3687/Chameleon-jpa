@@ -2,6 +2,7 @@ package Tshishi.Chameleon.HumanResources.DataAccess.Entities;
 
 import Tshishi.Chameleon.Common.AbstractClass.BaseEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -25,9 +26,15 @@ public class Users extends BaseEntity {
     private String lastName;
 
     @Column(unique = true)
+    @Pattern(regexp = "^[0-9A-Za-z]{8,}$", message = "Numéro d'entreprise européen invalide")
+    private String businessNumber;
+
+    @Column(unique = true)
+    @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,6}$", message = "Adresse e-mail invalide")
     private String mail;
 
     @Column(unique = true)
+    @Pattern(regexp = "^(\\+|00)\\d{1,4}[\\s\\./0-9]*$", message = "Numéro de téléphone européen invalide")
     private String phone;
 
     @Column
@@ -47,4 +54,7 @@ public class Users extends BaseEntity {
 
     @OneToMany
     private List<ContactDetails> contactDetails;
+
+    @Column
+    private boolean active;
 }

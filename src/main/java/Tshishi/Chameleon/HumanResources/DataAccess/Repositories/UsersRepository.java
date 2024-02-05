@@ -7,5 +7,5 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UsersRepository extends JpaRepository<Users, UUID> {
-    Optional<Users> findUsersByMailOrPhone(String mail, String phone);
+    Optional<Users> findUsersByMailOrPhoneOrBusinessNumber(String mail, String phone, String businessNumber);
 }

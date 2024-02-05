@@ -19,6 +19,8 @@ public class UsersVueDto  implements IdentifiedDto<UUID> {
 
     private String initialName;
 
+    private String businessNumber;
+
     private String initialMail;
 
     private String phone;
@@ -26,6 +28,8 @@ public class UsersVueDto  implements IdentifiedDto<UUID> {
     private List<RolesDto> rolesDtoList;
 
     private List<ContactDetailsDto> contactDetails;
+
+    private boolean active;
 
     @Override
     public String getName() {

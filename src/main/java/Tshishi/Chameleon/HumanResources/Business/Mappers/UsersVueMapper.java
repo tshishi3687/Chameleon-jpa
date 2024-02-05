@@ -3,6 +3,8 @@ package Tshishi.Chameleon.HumanResources.Business.Mappers;
 import Tshishi.Chameleon.HumanResources.Business.Dtos.UsersVueDto;
 import Tshishi.Chameleon.HumanResources.DataAccess.Entities.Users;
 
+import java.util.List;
+
 public class UsersVueMapper {
 
     private final RolesMapper rolesMapper = new RolesMapper();
@@ -12,11 +14,17 @@ public class UsersVueMapper {
         return new UsersVueDto(
                 users.getId(),
                 users.getFirstName().toUpperCase().charAt(0) + "." + users.getLastName().toUpperCase().charAt(0),
+                users.getBusinessNumber(),
                 mask(users.getMail()),
                 mask(users.getPhone()),
                 rolesMapper.toDtos(users.getRolesList()),
-                contactDetailsMapper.toDtos(users.getContactDetails())
+                contactDetailsMapper.toDtos(users.getContactDetails()),
+                users.isActive()
                 );
+    }
+
+    public List<UsersVueDto> toDtos(List<Users> entities) {
+        return entities.stream().map(this::toDto).toList();
     }
 
     private String mask(String string) {

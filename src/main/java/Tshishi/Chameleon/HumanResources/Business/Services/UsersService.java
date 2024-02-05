@@ -45,7 +45,7 @@ public class UsersService {
     @Transactional
     public UsersVueDto addEntity(UsersCreatedDto usersCreatedDto) {
         AtomicReference<Users> usersAtomicReference = new AtomicReference<>();
-        usersRepository.findUsersByMailOrPhone(usersCreatedDto.getMail(), usersCreatedDto.getPhone())
+        usersRepository.findUsersByMailOrPhoneOrBusinessNumber(usersCreatedDto.getMail(), usersCreatedDto.getPhone(), usersCreatedDto.getBusinessNumber())
                 .ifPresentOrElse(
                         value -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.ADDING_ENTITY, usersCreatedDto, value.getId()),
                         () -> {
