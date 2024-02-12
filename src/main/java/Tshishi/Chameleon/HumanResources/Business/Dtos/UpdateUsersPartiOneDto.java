@@ -23,6 +23,4 @@ public class UpdateUsersPartiOneDto {
     private LocalDate birthDay;
     @Nonnull
     private UUID uuid;
-    @Nullable
-    private String businessNumber;
 }
