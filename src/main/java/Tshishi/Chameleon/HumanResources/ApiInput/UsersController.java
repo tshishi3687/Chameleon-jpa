@@ -1,9 +1,6 @@
 package Tshishi.Chameleon.HumanResources.ApiInput;
 
-import Tshishi.Chameleon.HumanResources.Business.Dtos.UpdateUsersPartiOneDto;
-import Tshishi.Chameleon.HumanResources.Business.Dtos.UpdateUsersPartiTowDto;
-import Tshishi.Chameleon.HumanResources.Business.Dtos.UsersCreatedDto;
-import Tshishi.Chameleon.HumanResources.Business.Dtos.UsersVueDto;
+import Tshishi.Chameleon.HumanResources.Business.Dtos.*;
 import Tshishi.Chameleon.HumanResources.Business.Services.UsersService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -54,6 +51,14 @@ public class UsersController  {
     @PostMapping("/updateUsersPartiTow")
     public ResponseEntity<UsersVueDto> updateUsersPartiTow(@RequestBody UpdateUsersPartiTowDto updateUsersPartiTowDto, HttpServletRequest request) throws URISyntaxException {
         UsersVueDto usersVueDto = usersService.updateUsersPartiTow(updateUsersPartiTowDto);
+        String requestUrl = request.getRequestURL().toString();
+        URI location = new URI(String.format("%s/%s", requestUrl, usersVueDto.getId()));
+        return ResponseEntity.created(location).body(usersVueDto);
+    }
+
+    @PostMapping("/updateUsersPartiThree")
+    public ResponseEntity<UsersVueDto> updateUsersPartiThree(@RequestBody UpdateUsersPartiThreeDto updateUsersPartiThreeDto, HttpServletRequest request) throws URISyntaxException {
+        UsersVueDto usersVueDto = usersService.updateUsersPartiThree(updateUsersPartiThreeDto);
         String requestUrl = request.getRequestURL().toString();
         URI location = new URI(String.format("%s/%s", requestUrl, usersVueDto.getId()));
         return ResponseEntity.created(location).body(usersVueDto);

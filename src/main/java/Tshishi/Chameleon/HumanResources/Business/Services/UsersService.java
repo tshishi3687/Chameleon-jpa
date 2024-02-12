@@ -207,4 +207,32 @@ public class UsersService {
                 );
         return usersVueDtoAtomicReference.get();
     }
+
+    @Transactional
+    public UsersVueDto updateUsersPartiThree(UpdateUsersPartiThreeDto dto) {
+        AtomicReference<UsersVueDto> usersVueDtoAtomicReference = new AtomicReference<>();
+        usersRepository.findById(dto.getUuid())
+                .ifPresentOrElse(
+                        value -> {
+                            value.getRolesList().removeIf(roles -> !roles.getName().equals(UsersRoles.SUPER_ADMIN.getRoleName()));
+
+                            dto.getRolesDtos().forEach(rolesDto -> {
+                                if (!rolesRepository.existsById(rolesDto.getId())) {
+                                    serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.ADDING_ENTITY, rolesDto, rolesDto.getId());
+                                }
+                            });
+
+                            dto.getRolesDtos().forEach(rolesDto -> {
+                                if (!rolesDto.getName().equals(UsersRoles.SUPER_ADMIN.getRoleName())) {
+                                    value.getRolesList().add(rolesRepository.findById(rolesDto.getId())
+                                            .orElseThrow());
+                                }
+                            });
+                            usersVueDtoAtomicReference.set(usersVueMapper.toDto(value));
+                            serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.UPDATING_ENTITY, usersVueMapper.toDto(value), value.getId());
+                        },
+                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, new UsersVueDto(), dto.getUuid())
+                );
+        return usersVueDtoAtomicReference.get();
+    }
 }

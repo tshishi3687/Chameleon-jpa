@@ -35,7 +35,7 @@ public class ServiceLogs {
             switch (loggerTypes) {
                 case ADDING_ENTITY -> logger.info(String.format("This %s saved .", dto.getClass().getSimpleName()));
                 case READING_ENTITY -> logger.info(String.format("This %s  was found and sent", dto.getClass().getSimpleName()));
-                case UPDATING_ENTITY -> logger.info(String.format("This %s was found", dto.getClass().getSimpleName()));
+                case UPDATING_ENTITY -> logger.info(String.format("This %s was found and updated", dto.getClass().getSimpleName()));
                 case DELETING_ENTITY -> logger.info(String.format("This %s with id : %s was found and deleted.", dto.getClass().getSimpleName(), uuid));
             }
         }
