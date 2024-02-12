@@ -9,6 +9,7 @@ import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.ServiceL
 import Tshishi.Chameleon.HumanResources.DataAccess.Entities.*;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.*;
 import jakarta.transaction.Transactional;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -97,13 +98,13 @@ public class UsersService {
                                         // set locality
                                         serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ENTITY, contactDetailsDto.getLocality(), contactDetailsDto.getLocality().getId());
                                         contactDetails.setLocality(localityRepository.findById(contactDetailsDto.getLocality().getId())
-                                                .orElse(localityRepository.save(new Locality(contactDetailsDto.getLocality().getName())))
+                                                .orElse(localityRepository.save(new Locality(contactDetailsDto.getLocality().getName().toUpperCase())))
                                         );
 
                                         // set Country
                                         serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ENTITY, contactDetailsDto.getCountry(), contactDetailsDto.getCountry().getId());
                                         contactDetails.setCountry(countryRepository.findById(contactDetailsDto.getCountry().getId())
-                                                .orElse(countryRepository.save(new Country(contactDetailsDto.getCountry().getName())))
+                                                .orElse(countryRepository.save(new Country(contactDetailsDto.getCountry().getName().toUpperCase())))
                                         );
 
                                         // set and add contact details
@@ -126,7 +127,32 @@ public class UsersService {
         return usersVueDto;
     }
 
-    public List<UsersCreatedDto> readAllEntities() {
-        return usersCreatedMapper.toDtos(usersRepository.findAll());
+    public List<UsersVueDto> readAllEntities() {
+        return usersVueMapper.toDtos(usersRepository.findAll());
+    }
+
+    @Transactional
+    public UsersVueDto updateUsersPartiOne(UpdateUsersPartiOneDto dto) {
+        AtomicReference<UsersVueDto> usersVueDtoAtomicReference = new AtomicReference<>();
+        usersRepository.findById(dto.getUuid())
+                .ifPresentOrElse(
+                        value -> {
+                            if (StringUtils.isNotBlank(dto.getFirstName()))
+                                value.setFirstName(dto.getFirstName());
+
+                            if (StringUtils.isNotBlank(dto.getLastName()))
+                                value.setLastName(dto.getLastName());
+
+                            if (dto.getBirthDay() != null)
+                                value.setBirthdays(dto.getBirthDay());
+
+                            if (StringUtils.isNotBlank(dto.getBusinessNumber()))
+                                value.setBusinessNumber(dto.getBusinessNumber());
+
+                            usersVueDtoAtomicReference.set(usersVueMapper.toDto(value));
+                        },
+                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, usersVueDtoAtomicReference.get(), dto.getUuid())
+                );
+        return usersVueDtoAtomicReference.get();
     }
 }
