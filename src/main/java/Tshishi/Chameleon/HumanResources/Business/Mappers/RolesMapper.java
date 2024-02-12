@@ -20,7 +20,7 @@ public class RolesMapper implements IdentifiedMapper<RolesDto, Roles> {
     @Override
     public Roles toEntity(RolesDto rolesDto) {
         return new Roles(
-                rolesDto.getName(),
+                rolesDto.getName().toUpperCase(),
                 new ArrayList<>()
         );
     }
