@@ -133,166 +133,134 @@ public class UsersService {
     }
 
     @Transactional
-    public UsersVueDto usersPartiOne(UsersPartiOneDto dto) {
-        AtomicReference<UsersVueDto> usersVueDtoAtomicReference = new AtomicReference<>();
-        usersRepository.findById(dto.getUsersUuid())
-                .ifPresentOrElse(
-                        value -> {
-                            if (StringUtils.isNotBlank(dto.getFirstName()))
-                                value.setFirstName(dto.getFirstName());
-
-                            if (StringUtils.isNotBlank(dto.getLastName()))
-                                value.setLastName(dto.getLastName());
-
-                            if (dto.getBirthDay() != null)
-                                value.setBirthdays(dto.getBirthDay());
-
-                            usersVueDtoAtomicReference.set(usersVueMapper.toDto(value));
-                        },
-                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, usersVueDtoAtomicReference.get(), dto.getUsersUuid())
-                );
-        return usersVueDtoAtomicReference.get();
-    }
-
-    @Transactional
-    public UsersVueDto usersPartiTow(UsersPartiTowDto dto) {
-        AtomicReference<UsersVueDto> usersVueDtoAtomicReference = new AtomicReference<>();
-        usersRepository.findById(dto.getUsersUuid())
-                .ifPresentOrElse(
-                        value -> {
-                            serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.UPDATING_ENTITY, usersVueMapper.toDto(value), value.getId());
-                            if (StringUtils.isNotBlank(dto.getMail())) {
-                                usersRepository.findUsersByMail(dto.getMail())
-                                        .ifPresentOrElse(
-                                                usersMailValue -> {
-                                                    if (!value.getId().equals(usersMailValue.getId())) {
-                                                        serviceLogs.logsConstruction(LoggerStep.EXISTED, LoggerTypes.ADDING_ENTITY, usersVueMapper.toDto(usersMailValue), usersMailValue.getId());
-                                                    }
-                                                },
-                                                () -> value.setMail(dto.getMail())
-                                        );
-                            }
-
-                            if (StringUtils.isNotBlank(dto.getPhone())) {
-                                usersRepository.findUsersByPhone(dto.getPhone())
-                                        .ifPresentOrElse(
-                                                usersPhoneValue -> {
-                                                    if (!value.getId().equals(usersPhoneValue.getId())) {
-                                                        serviceLogs.logsConstruction(LoggerStep.EXISTED, LoggerTypes.ADDING_ENTITY, usersVueMapper.toDto(usersPhoneValue), usersPhoneValue.getId());
-                                                    }
-                                                },
-                                                () -> value.setPhone(dto.getPhone())
-                                        );
-                            }
-
-                            if (StringUtils.isNotBlank(dto.getBusinessNumber())) {
-                                usersRepository.findUsersByBusinessNumber(dto.getBusinessNumber())
-                                        .ifPresentOrElse(
-                                                usersBusinessValue -> {
-                                                    if (!value.getId().equals(usersBusinessValue.getId())) {
-                                                        serviceLogs.logsConstruction(LoggerStep.EXISTED, LoggerTypes.ADDING_ENTITY, usersVueMapper.toDto(usersBusinessValue), usersBusinessValue.getId());
-                                                    }
-                                                },
-                                                () -> value.setBusinessNumber(dto.getBusinessNumber())
-                                        );
-                            }
-
-                            if (StringUtils.isNotBlank(dto.getPassword())) {
-                                value.setPassWord(dto.getPassword());
-                            }
-
-                            usersVueDtoAtomicReference.set(usersVueMapper.toDto(value));
-                            serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.UPDATING_ENTITY, usersVueMapper.toDto(value), value.getId());
-                        },
-                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, new UsersVueDto(), dto.getUsersUuid())
-                );
-        return usersVueDtoAtomicReference.get();
-    }
-
-    @Transactional
-    public UsersVueDto usersPartiThree(UsersPartiThreeDto dto) {
-        AtomicReference<UsersVueDto> usersVueDtoAtomicReference = new AtomicReference<>();
-        usersRepository.findById(dto.getUsersUuid())
-                .ifPresentOrElse(
-                        value -> {
-                            value.getRolesList().removeIf(roles -> !roles.getName().equals(UsersRoles.SUPER_ADMIN.getRoleName()));
-
-                            dto.getRolesDtos().forEach(rolesDto -> {
-                                if (!rolesRepository.existsById(rolesDto.getId())) {
-                                    serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.ADDING_ENTITY, rolesDto, rolesDto.getId());
-                                }
-                            });
-
-                            dto.getRolesDtos().forEach(rolesDto -> {
-                                if (!rolesDto.getName().equals(UsersRoles.SUPER_ADMIN.getRoleName())) {
-                                    value.getRolesList().add(rolesRepository.findById(rolesDto.getId())
-                                            .orElseThrow());
-                                }
-                            });
-                            usersVueDtoAtomicReference.set(usersVueMapper.toDto(value));
-                            serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.UPDATING_ENTITY, usersVueMapper.toDto(value), value.getId());
-                        },
-                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, new UsersVueDto(), dto.getUsersUuid())
-                );
-        return usersVueDtoAtomicReference.get();
-    }
-
-    @Transactional
-    public UsersVueDto updateContactDetail(ContactDetailsDto dto, UUID usersUuid) {
-        AtomicReference<UsersVueDto> usersVueDtoAtomicReference = new AtomicReference<>();
-        usersRepository.findById(usersUuid)
-                .ifPresentOrElse(
-                        value -> value.getContactDetails().stream()
-                                .filter(contactDetails -> contactDetails.getId().equals(dto.getId()))
-                                .findFirst()
-                                .ifPresentOrElse(
-                                        contactDetails -> {
-                                            contactDetails.setAddress(dto.getAddress());
-                                            contactDetails.setNumber(dto.getNumber());
-                                            contactDetails.setLocality(localityRepository.findLocalityByName(dto.getLocality().getName())
-                                                    .orElse(localityRepository.save(new Locality(dto.getLocality().getName().toUpperCase()))));
-                                            contactDetails.setCountry(countryRepository.findCountryByName(dto.getCountry().getName())
-                                                    .orElse(countryRepository.save(new Country(dto.getCountry().getName().toUpperCase()))));
-                                            usersVueDtoAtomicReference.set(usersVueMapper.toDto(value));
-                                        },
-                                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, dto, dto.getId())
-                                ),
-                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, new UsersVueDto(), usersUuid)
-                );
-        return usersVueDtoAtomicReference.get();
-    }
-
-    @Transactional
-    public UsersVueDto upgradeContactDetails(ContactDetailsDto dto, UUID usersUuid) {
-        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, dto, usersUuid);
+    public UsersVueDto updateEntity(UsersCreatedDto dto, UUID usersUuid) {
+        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.UPDATING_ENTITY, dto, usersUuid);
         AtomicReference<UsersVueDto> usersVueDtoAtomicReference = new AtomicReference<>();
         usersRepository.findById(usersUuid)
                 .ifPresentOrElse(
                         value -> {
-                            Country country = countryRepository.findCountryByName(dto.getCountry().getName().toUpperCase())
-                                    .orElseGet(() -> countryRepository.saveAndFlush(new Country(dto.getCountry().getName().toUpperCase())));
+                            // Update String elements
+                            updateStringElements(value, dto);
 
-                            Locality locality = localityRepository.findLocalityByName(dto.getLocality().getName().toUpperCase())
-                                    .orElseGet(() -> localityRepository.saveAndFlush(new Locality(dto.getLocality().getName().toUpperCase())));
+                            // Update BirthDay
+                            updateBirthday(value, dto);
 
+                            // Update Roles
+                            updateRoles(value, dto.getRolesDtoList());
 
-                            // Assurez-vous que les entités sont persistées avant de continuer
-                            countryRepository.saveAndFlush(country);
-                            localityRepository.saveAndFlush(locality);
+                            // Update Contact Details
+                            updateContactDetails(value, dto.getContactDetails());
+
+                            usersVueDtoAtomicReference.set(usersVueMapper.toDto(value));
+                            serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.UPDATING_ENTITY, usersVueDtoAtomicReference.get(),usersUuid);
+                        },
+                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, usersVueDtoAtomicReference.get(), usersUuid)
+                );
+        return usersVueDtoAtomicReference.get();
+    }
+
+    private void updateStringElements(Users value, UsersCreatedDto dto) {
+        if (StringUtils.isNotBlank(dto.getFirstName())) {
+            value.setFirstName(dto.getFirstName());
+        }
+        if (StringUtils.isNotBlank(dto.getLastName())) {
+            value.setLastName(dto.getLastName());
+        }
+        if (StringUtils.isNotBlank(dto.getMail())) {
+            usersRepository.findUsersByMail(dto.getMail())
+                    .ifPresentOrElse(
+                            usersMailValue -> {
+                                if (!value.getId().equals(usersMailValue.getId())) {
+                                    serviceLogs.logsConstruction(LoggerStep.EXISTED, LoggerTypes.ADDING_ENTITY, usersVueMapper.toDto(usersMailValue), usersMailValue.getId());
+                                }
+                            },
+                            () -> value.setMail(dto.getMail())
+                    );
+        }
+        if (StringUtils.isNotBlank(dto.getPhone())) {
+            usersRepository.findUsersByPhone(dto.getPhone())
+                    .ifPresentOrElse(
+                            usersPhoneValue -> {
+                                if (!value.getId().equals(usersPhoneValue.getId())) {
+                                    serviceLogs.logsConstruction(LoggerStep.EXISTED, LoggerTypes.ADDING_ENTITY, usersVueMapper.toDto(usersPhoneValue), usersPhoneValue.getId());
+                                }
+                            },
+                            () -> value.setPhone(dto.getPhone())
+                    );
+        }
+        if (StringUtils.isNotBlank(dto.getBusinessNumber())) {
+            usersRepository.findUsersByBusinessNumber(dto.getBusinessNumber())
+                    .ifPresentOrElse(
+                            usersBusinessValue -> {
+                                if (!value.getId().equals(usersBusinessValue.getId())) {
+                                    serviceLogs.logsConstruction(LoggerStep.EXISTED, LoggerTypes.ADDING_ENTITY, usersVueMapper.toDto(usersBusinessValue), usersBusinessValue.getId());
+                                }
+                            },
+                            () -> value.setBusinessNumber(dto.getBusinessNumber())
+                    );
+        }
+        if (StringUtils.isNotBlank(dto.getPassword())) {
+            value.setPassWord(dto.getPassword());
+        }
+    }
+
+    private void updateBirthday(Users value, UsersCreatedDto dto) {
+        if (dto.getBirthDay() != null) {
+            value.setBirthdays(dto.getBirthDay());
+        }
+    }
+
+    private void updateRoles(Users value, List<RolesDto> rolesDtoList) {
+        value.getRolesList().removeIf(roles -> !roles.getName().equals(UsersRoles.SUPER_ADMIN.getRoleName()));
+
+        rolesDtoList.forEach(rolesDto -> {
+            if (!rolesRepository.existsById(rolesDto.getId())) {
+                serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.ADDING_ENTITY, rolesDto, rolesDto.getId());
+            } else if (!rolesDto.getName().equals(UsersRoles.SUPER_ADMIN.getRoleName())) {
+                value.getRolesList().add(rolesRepository.findById(rolesDto.getId()).orElseThrow());
+            }
+        });
+    }
+
+    private void updateContactDetails(Users value, List<ContactDetailsDto> contactDetailsDtoList) {
+        contactDetailsDtoList.forEach(contactDetailsDto -> {
+            Country country = getOrCreateCountry(contactDetailsDto.getCountry().getName());
+            Locality locality = getOrCreateLocality(contactDetailsDto.getLocality().getName());
+
+            updateOrCreateContactDetails(value, contactDetailsDto, country, locality);
+        });
+    }
+
+    private Country getOrCreateCountry(String countryName) {
+        return countryRepository.findCountryByName(countryName.toUpperCase())
+                .orElseGet(() -> countryRepository.saveAndFlush(new Country(countryName.toUpperCase())));
+    }
+
+    private Locality getOrCreateLocality(String localityName) {
+        return localityRepository.findLocalityByName(localityName.toUpperCase())
+                .orElseGet(() -> localityRepository.saveAndFlush(new Locality(localityName.toUpperCase())));
+    }
+
+    private void updateOrCreateContactDetails(Users value, ContactDetailsDto contactDetailsDto, Country country, Locality locality) {
+        value.getContactDetails().stream()
+                .filter(contactDetails1 -> contactDetails1.getId().equals(contactDetailsDto.getId()))
+                .findFirst()
+                .ifPresentOrElse(contactDetails1 -> {
+                            contactDetails1.setAddress(contactDetailsDto.getAddress());
+                            contactDetails1.setNumber(contactDetailsDto.getNumber());
+                            contactDetails1.setLocality(locality);
+                            contactDetails1.setCountry(country);
+                        },
+                        () -> {
                             ContactDetails contactDetails = contactDetailsRepository.saveAndFlush(new ContactDetails(
-                                    dto.getAddress(),
-                                    dto.getNumber(),
+                                    contactDetailsDto.getAddress(),
+                                    contactDetailsDto.getNumber(),
                                     locality,
                                     country,
                                     value
                             ));
                             value.getContactDetails().add(contactDetails);
-
-                            usersVueDtoAtomicReference.set(usersVueMapper.toDto(value));
-                            serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.ADDING_ENTITY, dto, usersUuid);
-                        },
-                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, new UsersVueDto(), usersUuid)
-                );
-        return usersVueDtoAtomicReference.get();
+                        });
     }
+
 }

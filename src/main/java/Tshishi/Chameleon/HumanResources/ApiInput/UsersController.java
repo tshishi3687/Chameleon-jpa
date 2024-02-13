@@ -37,42 +37,12 @@ public class UsersController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UsersVueDto>> getAll() {
+    public ResponseEntity<List<UsersVueDto>> getAllEntity() {
         return ResponseEntity.ok(usersService.readAllEntities());
     }
 
-    @PostMapping("/usersPartiOne")
-    public ResponseEntity<UsersVueDto> usersPartiOne(@RequestBody UsersPartiOneDto usersPartiOneDto, HttpServletRequest request) throws URISyntaxException {
-        UsersVueDto usersVueDto = usersService.usersPartiOne(usersPartiOneDto);
-        String requestUrl = request.getRequestURL().toString();
-        URI location = new URI(String.format("%s/%s", requestUrl, usersVueDto.getId()));
-        return ResponseEntity.created(location).body(usersVueDto);
+    @PutMapping("/{usersUuid}")
+    public ResponseEntity<UsersVueDto> updateEntity(@RequestBody UsersCreatedDto usersCreatedDto, @PathVariable UUID usersUuid) {
+        return ResponseEntity.ok(usersService.updateEntity(usersCreatedDto, usersUuid));
     }
-
-    @PostMapping("/usersPartiTow")
-    public ResponseEntity<UsersVueDto> usersPartiTow(@RequestBody UsersPartiTowDto usersPartiTowDto, HttpServletRequest request) throws URISyntaxException {
-        UsersVueDto usersVueDto = usersService.usersPartiTow(usersPartiTowDto);
-        String requestUrl = request.getRequestURL().toString();
-        URI location = new URI(String.format("%s/%s", requestUrl, usersVueDto.getId()));
-        return ResponseEntity.created(location).body(usersVueDto);
-    }
-
-    @PostMapping("/usersPartiThree")
-    public ResponseEntity<UsersVueDto> usersPartiThree(@RequestBody UsersPartiThreeDto usersPartiThreeDto, HttpServletRequest request) throws URISyntaxException {
-        UsersVueDto usersVueDto = usersService.usersPartiThree(usersPartiThreeDto);
-        String requestUrl = request.getRequestURL().toString();
-        URI location = new URI(String.format("%s/%s", requestUrl, usersVueDto.getId()));
-        return ResponseEntity.created(location).body(usersVueDto);
-    }
-
-    @PutMapping("/updateContactDetail/{usersUuid}")
-    public ResponseEntity<UsersVueDto> updateContactDetail(@RequestBody ContactDetailsDto contactDetailsDto, @PathVariable UUID usersUuid) {
-        return ResponseEntity.ok(usersService.updateContactDetail(contactDetailsDto, usersUuid));
-    }
-
-    @PutMapping("/upgradeContactDetails/{usersUuid}")
-    public ResponseEntity<UsersVueDto> upgradeContactDetails(@RequestBody ContactDetailsDto contactDetailsDto, @PathVariable UUID usersUuid) {
-        return ResponseEntity.ok(usersService.upgradeContactDetails(contactDetailsDto, usersUuid));
-    }
-
 }
