@@ -9,8 +9,6 @@ import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.LoggerTy
 import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.ServiceLogs;
 import Tshishi.Chameleon.HumanResources.DataAccess.Entities.ContactDetails;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.ContactDetailsRepository;
-import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.CountryRepository;
-import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.LocalityRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,7 +24,7 @@ public class ContactDetailsService implements IdentifiedService<ContactDetailsDt
     private final ContactDetailsMapper contactDetailsMapper;
     private final ServiceLogs serviceLogs;
 
-    public ContactDetailsService(ContactDetailsRepository contactDetailsRepository, CountryRepository countryRepository, LocalityRepository localityRepository) {
+    public ContactDetailsService(ContactDetailsRepository contactDetailsRepository) {
         this.contactDetailsRepository = contactDetailsRepository;
         this.serviceLogs = new ServiceLogs();
         this.contactDetailsMapper = new ContactDetailsMapper();
@@ -35,12 +33,6 @@ public class ContactDetailsService implements IdentifiedService<ContactDetailsDt
     @Override
     public ContactDetailsDto addEntity(ContactDetailsDto dto) {
         serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, dto, null);
-//        if (contactDetailsRepository.countAllByUsers_Id(dto.getUsers().getId()) >= 3) {
-//            String errorMessage = String.format("The users with id : %s already has 3 contact Details saved. MAXIMUM AUTHORIZED IS 3 FOR USERS", dto.getUsers().getId());
-//            logger.warning(errorMessage);
-//            throw new UnsupportedOperationException(errorMessage);
-//        }
-
         logger.info("Inject elements : locality, country, users.");
         ContactDetails contactDetails = contactDetailsMapper.toEntity(dto);
         //        logger.info(String.format("This users with id : %s was be a new contact details.", dto.getUsers().getId()));
@@ -70,17 +62,8 @@ public class ContactDetailsService implements IdentifiedService<ContactDetailsDt
 
     @Override
     public ContactDetailsDto updateEntity(ContactDetailsDto dto, UUID uuid) {
-        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.UPDATING_ENTITY, dto, uuid);
-        contactDetailsRepository.findById(uuid)
-                .ifPresentOrElse(
-                        value -> {
-                            ContactDetails contactDetails = contactDetailsMapper.toEntity(dto);
-                            dto.setId(contactDetailsRepository.save(contactDetails).getId());
-                            serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.UPDATING_ENTITY, dto, dto.getId());
-                        },
-                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.UPDATING_ENTITY, dto, uuid)
-                );
-        return dto;
+
+        return null;
     }
 
     @Override

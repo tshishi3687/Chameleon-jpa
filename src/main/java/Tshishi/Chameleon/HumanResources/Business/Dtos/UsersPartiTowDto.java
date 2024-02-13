@@ -14,7 +14,7 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateUsersPartiTowDto {
+public class UsersPartiTowDto {
 
     @Nullable
     @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,6}$", message = "Adresse e-mail invalide")
@@ -28,5 +28,5 @@ public class UpdateUsersPartiTowDto {
     @Nullable
     private String password;
     @Nonnull
-    private UUID uuid;
+    private UUID usersUuid;
 }

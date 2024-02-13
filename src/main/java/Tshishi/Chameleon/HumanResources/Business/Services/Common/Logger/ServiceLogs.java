@@ -60,7 +60,7 @@ public class ServiceLogs {
             error = "";
             switch (loggerTypes) {
                 case ADDING_ENTITY -> error = String.format("This %s : \"%s\" existed . CAN'T EXIST TWICE", dto.getClass().getSimpleName(), dto.getName());
-                case READING_ENTITY -> error = String.format("This %s with id : %s NOT FOUND!", "This roles", uuid);
+                case READING_ENTITY -> error = String.format("This %s with id : %s NOT FOUND!", dto.getClass().getSimpleName(), uuid);
                 case READIND_ENTITY_By_MAIL_OR_PHONE -> error = String.format("This %s with name : %s NOT FOUND!", dto.getClass().getSimpleName(), dto.getName());
                 case UPDATING_ENTITY -> error = String.format("This %s with id : %s was not found. UPDATE FAIL!", dto.getClass().getSimpleName(), uuid);
                 case READING_ALL_ENTITY, DELETING_ENTITY -> error = ""; // implement later

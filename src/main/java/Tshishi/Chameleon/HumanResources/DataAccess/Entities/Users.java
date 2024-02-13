@@ -34,7 +34,7 @@ public class Users extends BaseEntity {
     private String mail;
 
     @Column(unique = true)
-    @Pattern(regexp = "^(\\+|00)\\d{1,4}[\\s\\./0-9]*$", message = "Numéro de téléphone européen invalide")
+    @Pattern(regexp = "^(\\+|00)\\d{1,4}[\\s/0-9]*$", message = "Numéro de téléphone européen invalide")
     private String phone;
 
     @Column
@@ -50,7 +50,6 @@ public class Users extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "RolesID"))
     @ToString.Exclude
     private List<Roles> rolesList;
-
 
     @OneToMany
     private List<ContactDetails> contactDetails;

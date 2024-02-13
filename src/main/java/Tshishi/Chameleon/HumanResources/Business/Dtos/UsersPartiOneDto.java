@@ -14,7 +14,7 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateUsersPartiOneDto {
+public class UsersPartiOneDto {
     @Nullable
     private String firstName;
     @Nullable
@@ -22,5 +22,5 @@ public class UpdateUsersPartiOneDto {
     @Nullable
     private LocalDate birthDay;
     @Nonnull
-    private UUID uuid;
+    private UUID usersUuid;
 }

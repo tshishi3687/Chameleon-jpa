@@ -12,17 +12,18 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/Users")
 @Tag(name = "Users Controller", description = "API for managing users")
-public class UsersController  {
+public class UsersController {
 
     HttpServletRequest httpServletRequest;
     private final UsersService usersService;
 
     @Autowired
-    public UsersController(UsersService service, HttpServletRequest httpServletRequest){
+    public UsersController(UsersService service, HttpServletRequest httpServletRequest) {
         this.usersService = service;
         this.httpServletRequest = httpServletRequest;
     }
@@ -36,32 +37,42 @@ public class UsersController  {
     }
 
     @GetMapping
-    public ResponseEntity<List<UsersVueDto>> getAll(){
+    public ResponseEntity<List<UsersVueDto>> getAll() {
         return ResponseEntity.ok(usersService.readAllEntities());
     }
 
-    @PostMapping("/updateUsersPartiOne")
-    public ResponseEntity<UsersVueDto> updateUsersPartiOne(@RequestBody UpdateUsersPartiOneDto updateUsersPartiOneDto, HttpServletRequest request) throws URISyntaxException {
-        UsersVueDto usersVueDto = usersService.updateUsersPartiOne(updateUsersPartiOneDto);
+    @PostMapping("/usersPartiOne")
+    public ResponseEntity<UsersVueDto> usersPartiOne(@RequestBody UsersPartiOneDto usersPartiOneDto, HttpServletRequest request) throws URISyntaxException {
+        UsersVueDto usersVueDto = usersService.usersPartiOne(usersPartiOneDto);
         String requestUrl = request.getRequestURL().toString();
         URI location = new URI(String.format("%s/%s", requestUrl, usersVueDto.getId()));
         return ResponseEntity.created(location).body(usersVueDto);
     }
 
-    @PostMapping("/updateUsersPartiTow")
-    public ResponseEntity<UsersVueDto> updateUsersPartiTow(@RequestBody UpdateUsersPartiTowDto updateUsersPartiTowDto, HttpServletRequest request) throws URISyntaxException {
-        UsersVueDto usersVueDto = usersService.updateUsersPartiTow(updateUsersPartiTowDto);
+    @PostMapping("/usersPartiTow")
+    public ResponseEntity<UsersVueDto> usersPartiTow(@RequestBody UsersPartiTowDto usersPartiTowDto, HttpServletRequest request) throws URISyntaxException {
+        UsersVueDto usersVueDto = usersService.usersPartiTow(usersPartiTowDto);
         String requestUrl = request.getRequestURL().toString();
         URI location = new URI(String.format("%s/%s", requestUrl, usersVueDto.getId()));
         return ResponseEntity.created(location).body(usersVueDto);
     }
 
-    @PostMapping("/updateUsersPartiThree")
-    public ResponseEntity<UsersVueDto> updateUsersPartiThree(@RequestBody UpdateUsersPartiThreeDto updateUsersPartiThreeDto, HttpServletRequest request) throws URISyntaxException {
-        UsersVueDto usersVueDto = usersService.updateUsersPartiThree(updateUsersPartiThreeDto);
+    @PostMapping("/usersPartiThree")
+    public ResponseEntity<UsersVueDto> usersPartiThree(@RequestBody UsersPartiThreeDto usersPartiThreeDto, HttpServletRequest request) throws URISyntaxException {
+        UsersVueDto usersVueDto = usersService.usersPartiThree(usersPartiThreeDto);
         String requestUrl = request.getRequestURL().toString();
         URI location = new URI(String.format("%s/%s", requestUrl, usersVueDto.getId()));
         return ResponseEntity.created(location).body(usersVueDto);
+    }
+
+    @PutMapping("/updateContactDetail/{usersUuid}")
+    public ResponseEntity<UsersVueDto> updateContactDetail(@RequestBody ContactDetailsDto contactDetailsDto, @PathVariable UUID usersUuid) {
+        return ResponseEntity.ok(usersService.updateContactDetail(contactDetailsDto, usersUuid));
+    }
+
+    @PutMapping("/upgradeContactDetails/{usersUuid}")
+    public ResponseEntity<UsersVueDto> upgradeContactDetails(@RequestBody ContactDetailsDto contactDetailsDto, @PathVariable UUID usersUuid) {
+        return ResponseEntity.ok(usersService.upgradeContactDetails(contactDetailsDto, usersUuid));
     }
 
 }

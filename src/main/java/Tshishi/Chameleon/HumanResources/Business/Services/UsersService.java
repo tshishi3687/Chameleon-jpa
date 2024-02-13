@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
@@ -132,9 +133,9 @@ public class UsersService {
     }
 
     @Transactional
-    public UsersVueDto updateUsersPartiOne(UpdateUsersPartiOneDto dto) {
+    public UsersVueDto usersPartiOne(UsersPartiOneDto dto) {
         AtomicReference<UsersVueDto> usersVueDtoAtomicReference = new AtomicReference<>();
-        usersRepository.findById(dto.getUuid())
+        usersRepository.findById(dto.getUsersUuid())
                 .ifPresentOrElse(
                         value -> {
                             if (StringUtils.isNotBlank(dto.getFirstName()))
@@ -148,15 +149,15 @@ public class UsersService {
 
                             usersVueDtoAtomicReference.set(usersVueMapper.toDto(value));
                         },
-                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, usersVueDtoAtomicReference.get(), dto.getUuid())
+                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, usersVueDtoAtomicReference.get(), dto.getUsersUuid())
                 );
         return usersVueDtoAtomicReference.get();
     }
 
     @Transactional
-    public UsersVueDto updateUsersPartiTow(UpdateUsersPartiTowDto dto) {
+    public UsersVueDto usersPartiTow(UsersPartiTowDto dto) {
         AtomicReference<UsersVueDto> usersVueDtoAtomicReference = new AtomicReference<>();
-        usersRepository.findById(dto.getUuid())
+        usersRepository.findById(dto.getUsersUuid())
                 .ifPresentOrElse(
                         value -> {
                             serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.UPDATING_ENTITY, usersVueMapper.toDto(value), value.getId());
@@ -203,15 +204,15 @@ public class UsersService {
                             usersVueDtoAtomicReference.set(usersVueMapper.toDto(value));
                             serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.UPDATING_ENTITY, usersVueMapper.toDto(value), value.getId());
                         },
-                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, new UsersVueDto(), dto.getUuid())
+                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, new UsersVueDto(), dto.getUsersUuid())
                 );
         return usersVueDtoAtomicReference.get();
     }
 
     @Transactional
-    public UsersVueDto updateUsersPartiThree(UpdateUsersPartiThreeDto dto) {
+    public UsersVueDto usersPartiThree(UsersPartiThreeDto dto) {
         AtomicReference<UsersVueDto> usersVueDtoAtomicReference = new AtomicReference<>();
-        usersRepository.findById(dto.getUuid())
+        usersRepository.findById(dto.getUsersUuid())
                 .ifPresentOrElse(
                         value -> {
                             value.getRolesList().removeIf(roles -> !roles.getName().equals(UsersRoles.SUPER_ADMIN.getRoleName()));
@@ -231,7 +232,66 @@ public class UsersService {
                             usersVueDtoAtomicReference.set(usersVueMapper.toDto(value));
                             serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.UPDATING_ENTITY, usersVueMapper.toDto(value), value.getId());
                         },
-                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, new UsersVueDto(), dto.getUuid())
+                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, new UsersVueDto(), dto.getUsersUuid())
+                );
+        return usersVueDtoAtomicReference.get();
+    }
+
+    @Transactional
+    public UsersVueDto updateContactDetail(ContactDetailsDto dto, UUID usersUuid) {
+        AtomicReference<UsersVueDto> usersVueDtoAtomicReference = new AtomicReference<>();
+        usersRepository.findById(usersUuid)
+                .ifPresentOrElse(
+                        value -> value.getContactDetails().stream()
+                                .filter(contactDetails -> contactDetails.getId().equals(dto.getId()))
+                                .findFirst()
+                                .ifPresentOrElse(
+                                        contactDetails -> {
+                                            contactDetails.setAddress(dto.getAddress());
+                                            contactDetails.setNumber(dto.getNumber());
+                                            contactDetails.setLocality(localityRepository.findLocalityByName(dto.getLocality().getName())
+                                                    .orElse(localityRepository.save(new Locality(dto.getLocality().getName().toUpperCase()))));
+                                            contactDetails.setCountry(countryRepository.findCountryByName(dto.getCountry().getName())
+                                                    .orElse(countryRepository.save(new Country(dto.getCountry().getName().toUpperCase()))));
+                                            usersVueDtoAtomicReference.set(usersVueMapper.toDto(value));
+                                        },
+                                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, dto, dto.getId())
+                                ),
+                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, new UsersVueDto(), usersUuid)
+                );
+        return usersVueDtoAtomicReference.get();
+    }
+
+    @Transactional
+    public UsersVueDto upgradeContactDetails(ContactDetailsDto dto, UUID usersUuid) {
+        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, dto, usersUuid);
+        AtomicReference<UsersVueDto> usersVueDtoAtomicReference = new AtomicReference<>();
+        usersRepository.findById(usersUuid)
+                .ifPresentOrElse(
+                        value -> {
+                            Country country = countryRepository.findCountryByName(dto.getCountry().getName().toUpperCase())
+                                    .orElseGet(() -> countryRepository.saveAndFlush(new Country(dto.getCountry().getName().toUpperCase())));
+
+                            Locality locality = localityRepository.findLocalityByName(dto.getLocality().getName().toUpperCase())
+                                    .orElseGet(() -> localityRepository.saveAndFlush(new Locality(dto.getLocality().getName().toUpperCase())));
+
+
+                            // Assurez-vous que les entités sont persistées avant de continuer
+                            countryRepository.saveAndFlush(country);
+                            localityRepository.saveAndFlush(locality);
+                            ContactDetails contactDetails = contactDetailsRepository.saveAndFlush(new ContactDetails(
+                                    dto.getAddress(),
+                                    dto.getNumber(),
+                                    locality,
+                                    country,
+                                    value
+                            ));
+                            value.getContactDetails().add(contactDetails);
+
+                            usersVueDtoAtomicReference.set(usersVueMapper.toDto(value));
+                            serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.ADDING_ENTITY, dto, usersUuid);
+                        },
+                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, new UsersVueDto(), usersUuid)
                 );
         return usersVueDtoAtomicReference.get();
     }

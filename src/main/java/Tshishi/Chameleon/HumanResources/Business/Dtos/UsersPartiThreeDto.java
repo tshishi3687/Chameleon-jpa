@@ -12,8 +12,8 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateUsersPartiThreeDto {
+public class UsersPartiThreeDto {
 
     private List<RolesDto> rolesDtos;
-    private UUID uuid;
+    private UUID usersUuid;
 }
