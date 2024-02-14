@@ -45,82 +45,29 @@ public class UsersService {
     }
 
     @Transactional
-    public UsersVueDto addEntity(UsersCreatedDto usersCreatedDto) {
+    public UsersVueDto addEntity(UsersCreatedDto dto) {
         AtomicReference<Users> usersAtomicReference = new AtomicReference<>();
-        usersRepository.findUsersByMailOrPhoneOrBusinessNumber(usersCreatedDto.getMail(), usersCreatedDto.getPhone(), usersCreatedDto.getBusinessNumber())
+        usersRepository.findUsersByMailOrPhoneOrBusinessNumber(dto.getMail(), dto.getPhone(), dto.getBusinessNumber())
                 .ifPresentOrElse(
-                        value -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.ADDING_ENTITY, usersCreatedDto, value.getId()),
+                        value -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.ADDING_ENTITY, dto, value.getId()),
                         () -> {
-                            List<Roles> rolesList = rolesRepository.findAll();
 
-                            usersAtomicReference.set(usersCreatedMapper.toEntity(usersCreatedDto));
+                            usersAtomicReference.set(usersCreatedMapper.toEntity(dto));
 
-                            // Check roles
-                            if (rolesList.isEmpty()) {
-                                serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.FIRST_CONNECT, usersCreatedDto, null);
-                                serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, usersCreatedDto.getRolesDtoList().stream().findFirst().orElseThrow(), null);
-                                // First user using app
-                                Roles roles = new Roles();
-                                roles.setName(UsersRoles.SUPER_ADMIN.getRoleName());
-                                usersAtomicReference.get().getRolesList().add(rolesRepository.save(roles));
-                                serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.ADDING_ENTITY, new RolesDto(), usersAtomicReference.get().getRolesList().stream().findFirst().orElseThrow().getId());
-                            } else {
-                                serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, usersCreatedDto, null);
-                                // Check if rolesDto not existed
-                                usersCreatedDto.getRolesDtoList().forEach(rolesDto -> {
-                                    if (!rolesRepository.existsById(rolesDto.getId())) {
-                                        serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.ADDING_ENTITY, rolesDto, rolesDto.getId());
-                                    }
-                                });
-                            }
+                            // Check or init roles
+                            checkOrInitRoles(usersAtomicReference, dto);
 
                             // Crypte password
-                            usersAtomicReference.get().setPassWord(bCryptPasswordEncoder.encode(usersCreatedDto.getPassword()));
+                            usersAtomicReference.get().setPassWord(bCryptPasswordEncoder.encode(dto.getPassword()));
 
                             // Add roles
-                            usersAtomicReference.get().getRolesList().addAll(
-                                    rolesRepository.findAllByIdIn(
-                                            usersCreatedDto.getRolesDtoList().stream()
-                                                    .filter(rolesDto -> !rolesDto.getName().equals(UsersRoles.SUPER_ADMIN.getRoleName()))
-                                                    .map(RolesDto::getId).toList()
-                                    )
-                            );
+                            addUsersRoles(usersAtomicReference, dto);
 
                             // creat success logs
                             usersAtomicReference.get().getRolesList().forEach(roles -> serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.READING_ENTITY, new RolesDto(), roles.getId()));
 
                             // add contact details
-                            List<ContactDetails> contactDetailsList = new ArrayList<>();
-                            usersCreatedDto.getContactDetails().forEach(
-                                    contactDetailsDto -> {
-                                        // mapping contact detail
-                                        ContactDetails contactDetails = contactDetailsMapper.toEntity(contactDetailsDto);
-
-                                        // set locality
-                                        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ENTITY, contactDetailsDto.getLocality(), contactDetailsDto.getLocality().getId());
-                                        contactDetails.setLocality(localityRepository.findById(contactDetailsDto.getLocality().getId())
-                                                .orElse(localityRepository.save(new Locality(contactDetailsDto.getLocality().getName().toUpperCase())))
-                                        );
-
-                                        // set Country
-                                        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ENTITY, contactDetailsDto.getCountry(), contactDetailsDto.getCountry().getId());
-                                        contactDetails.setCountry(countryRepository.findById(contactDetailsDto.getCountry().getId())
-                                                .orElse(countryRepository.save(new Country(contactDetailsDto.getCountry().getName().toUpperCase())))
-                                        );
-
-                                        // set and add contact details
-                                        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, contactDetailsMapper.toDto(contactDetails), null);
-                                        ContactDetails contactDetails1 = contactDetailsRepository.save(contactDetails);
-
-                                        contactDetailsList.add(contactDetails1);
-
-                                        // set success logs
-                                        serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.ADDING_ENTITY, new LocalityDto(), contactDetails.getLocality().getId());
-                                        serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.ADDING_ENTITY, new CountryDto(), contactDetails.getCountry().getId());
-                                        serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.ADDING_ENTITY, new ContactDetailsDto(), contactDetails1.getId());
-                                    }
-                            );
-                            usersAtomicReference.get().setContactDetails(contactDetailsList);
+                            addUsersContactDetails(usersAtomicReference, dto);
                         }
                 );
         UsersVueDto usersVueDto = usersVueMapper.toDto(usersRepository.save(usersAtomicReference.get()));
@@ -157,6 +104,71 @@ public class UsersService {
                         () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, usersVueDtoAtomicReference.get(), usersUuid)
                 );
         return usersVueDtoAtomicReference.get();
+    }
+
+    private void checkOrInitRoles(AtomicReference<Users> usersAtomicReference, UsersCreatedDto dto) {
+        List<Roles> rolesList = rolesRepository.findAll();
+        if (rolesList.isEmpty()) {
+            serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.FIRST_CONNECT, dto, null);
+            serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, dto.getRolesDtoList().stream().findFirst().orElseThrow(), null);
+            // First user using app
+            Roles roles = new Roles();
+            roles.setName(UsersRoles.SUPER_ADMIN.getRoleName());
+            usersAtomicReference.get().getRolesList().add(rolesRepository.save(roles));
+            serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.ADDING_ENTITY, new RolesDto(), usersAtomicReference.get().getRolesList().stream().findFirst().orElseThrow().getId());
+        } else {
+            serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, dto, null);
+            // Check if rolesDto not existed
+            dto.getRolesDtoList().forEach(rolesDto -> {
+                if (!rolesRepository.existsById(rolesDto.getId())) {
+                    serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.ADDING_ENTITY, rolesDto, rolesDto.getId());
+                }
+            });
+        }
+    }
+
+    private void addUsersRoles(AtomicReference<Users> usersAtomicReference, UsersCreatedDto dto) {
+        usersAtomicReference.get().getRolesList().addAll(
+                rolesRepository.findAllByIdIn(
+                        dto.getRolesDtoList().stream()
+                                .filter(rolesDto -> !rolesDto.getName().equals(UsersRoles.SUPER_ADMIN.getRoleName()))
+                                .map(RolesDto::getId).toList()
+                )
+        );
+    }
+
+    private void addUsersContactDetails(AtomicReference<Users> usersAtomicReference, UsersCreatedDto dto) {
+        List<ContactDetails> contactDetailsList = new ArrayList<>();
+        dto.getContactDetails().forEach(
+                contactDetailsDto -> {
+                    // mapping contact detail
+                    ContactDetails contactDetails = contactDetailsMapper.toEntity(contactDetailsDto);
+
+                    // set locality
+                    serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ENTITY, contactDetailsDto.getLocality(), contactDetailsDto.getLocality().getId());
+                    contactDetails.setLocality(localityRepository.findById(contactDetailsDto.getLocality().getId())
+                            .orElse(localityRepository.save(new Locality(contactDetailsDto.getLocality().getName().toUpperCase())))
+                    );
+
+                    // set Country
+                    serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ENTITY, contactDetailsDto.getCountry(), contactDetailsDto.getCountry().getId());
+                    contactDetails.setCountry(countryRepository.findById(contactDetailsDto.getCountry().getId())
+                            .orElse(countryRepository.save(new Country(contactDetailsDto.getCountry().getName().toUpperCase())))
+                    );
+
+                    // set and add contact details
+                    serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, contactDetailsMapper.toDto(contactDetails), null);
+                    ContactDetails contactDetails1 = contactDetailsRepository.save(contactDetails);
+
+                    contactDetailsList.add(contactDetails1);
+
+                    // set success logs
+                    serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.ADDING_ENTITY, new LocalityDto(), contactDetails.getLocality().getId());
+                    serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.ADDING_ENTITY, new CountryDto(), contactDetails.getCountry().getId());
+                    serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.ADDING_ENTITY, new ContactDetailsDto(), contactDetails1.getId());
+                }
+        );
+        usersAtomicReference.get().setContactDetails(contactDetailsList);
     }
 
     private void updateStringElements(Users value, UsersCreatedDto dto) {
