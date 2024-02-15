@@ -99,7 +99,7 @@ public class UsersService {
                             updateContactDetails(value, dto.getContactDetails());
 
                             usersVueDtoAtomicReference.set(usersVueMapper.toDto(value));
-                            serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.UPDATING_ENTITY, usersVueDtoAtomicReference.get(),usersUuid);
+                            serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.UPDATING_ENTITY, usersVueDtoAtomicReference.get(), usersUuid);
                         },
                         () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, usersVueDtoAtomicReference.get(), usersUuid)
                 );
@@ -234,11 +234,11 @@ public class UsersService {
         });
     }
 
-    private void updateContactDetails(Users value, List<ContactDetailsDto> contactDetailsDtoList) {
-        contactDetailsDtoList.forEach(contactDetailsDto -> {
+    private void updateContactDetails(Users value, List<ContactDetailsDto> dtos) {
+        value.getContactDetails().removeIf(contactDetails -> !dtos.contains(contactDetailsMapper.toDto(contactDetails)));
+        dtos.forEach(contactDetailsDto -> {
             Country country = getOrCreateCountry(contactDetailsDto.getCountry().getName());
             Locality locality = getOrCreateLocality(contactDetailsDto.getLocality().getName());
-
             updateOrCreateContactDetails(value, contactDetailsDto, country, locality);
         });
     }
@@ -274,5 +274,4 @@ public class UsersService {
                             value.getContactDetails().add(contactDetails);
                         });
     }
-
 }
