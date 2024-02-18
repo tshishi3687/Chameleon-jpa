@@ -27,7 +27,6 @@ public class ContactDetailsMapper implements IdentifiedMapper<ContactDetailsDto,
                 contactDetailsDto.getAddress(),
                 contactDetailsDto.getNumber(),
                 null,
-                null,
                 null
         );
     }

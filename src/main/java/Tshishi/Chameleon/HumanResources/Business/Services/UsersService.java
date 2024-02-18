@@ -268,8 +268,7 @@ public class UsersService {
                                     contactDetailsDto.getAddress(),
                                     contactDetailsDto.getNumber(),
                                     locality,
-                                    country,
-                                    value
+                                    country
                             ));
                             value.getContactDetails().add(contactDetails);
                         });

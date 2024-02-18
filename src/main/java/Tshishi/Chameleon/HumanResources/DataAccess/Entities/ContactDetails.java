@@ -25,7 +25,4 @@ public class ContactDetails extends BaseEntity {
 
     @ManyToOne
     private Country country;
-
-    @ManyToOne
-    private Users users;
 }
