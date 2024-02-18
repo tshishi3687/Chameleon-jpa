@@ -45,7 +45,7 @@ public class UsersService {
     }
 
     @Transactional
-    public UsersVueDto addEntity(UsersCreatedDto dto) {
+    public UsersVueDto addEntity(UpdateOrCreateUsers dto) {
         AtomicReference<Users> usersAtomicReference = new AtomicReference<>();
         usersRepository.findUsersByMailOrPhoneOrBusinessNumber(dto.getMail(), dto.getPhone(), dto.getBusinessNumber())
                 .ifPresentOrElse(
@@ -80,7 +80,7 @@ public class UsersService {
     }
 
     @Transactional
-    public UsersVueDto updateEntity(UsersCreatedDto dto, UUID usersUuid) {
+    public UsersVueDto updateEntity(UpdateOrCreateUsers dto, UUID usersUuid) {
         serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.UPDATING_ENTITY, dto, usersUuid);
         AtomicReference<UsersVueDto> usersVueDtoAtomicReference = new AtomicReference<>();
         usersRepository.findById(usersUuid)
@@ -106,7 +106,7 @@ public class UsersService {
         return usersVueDtoAtomicReference.get();
     }
 
-    private void checkOrInitRoles(AtomicReference<Users> usersAtomicReference, UsersCreatedDto dto) {
+    private void checkOrInitRoles(AtomicReference<Users> usersAtomicReference, UpdateOrCreateUsers dto) {
         List<Roles> rolesList = rolesRepository.findAll();
         if (rolesList.isEmpty()) {
             serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.FIRST_CONNECT, dto, null);
@@ -127,7 +127,7 @@ public class UsersService {
         }
     }
 
-    private void addUsersRoles(AtomicReference<Users> usersAtomicReference, UsersCreatedDto dto) {
+    private void addUsersRoles(AtomicReference<Users> usersAtomicReference, UpdateOrCreateUsers dto) {
         usersAtomicReference.get().getRolesList().addAll(
                 rolesRepository.findAllByIdIn(
                         dto.getRolesDtoList().stream()
@@ -137,7 +137,7 @@ public class UsersService {
         );
     }
 
-    private void addUsersContactDetails(AtomicReference<Users> usersAtomicReference, UsersCreatedDto dto) {
+    private void addUsersContactDetails(AtomicReference<Users> usersAtomicReference, UpdateOrCreateUsers dto) {
         List<ContactDetails> contactDetailsList = new ArrayList<>();
         dto.getContactDetails().forEach(
                 contactDetailsDto -> {
@@ -171,7 +171,7 @@ public class UsersService {
         usersAtomicReference.get().setContactDetails(contactDetailsList);
     }
 
-    private void updateStringElements(Users value, UsersCreatedDto dto) {
+    private void updateStringElements(Users value, UpdateOrCreateUsers dto) {
         if (StringUtils.isNotBlank(dto.getFirstName())) {
             value.setFirstName(dto.getFirstName());
         }
@@ -216,7 +216,7 @@ public class UsersService {
         }
     }
 
-    private void updateBirthday(Users value, UsersCreatedDto dto) {
+    private void updateBirthday(Users value, UpdateOrCreateUsers dto) {
         if (dto.getBirthDay() != null) {
             value.setBirthdays(dto.getBirthDay());
         }

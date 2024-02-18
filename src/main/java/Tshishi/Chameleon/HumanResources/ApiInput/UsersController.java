@@ -29,7 +29,7 @@ public class UsersController {
     }
 
     @PostMapping
-    public ResponseEntity<UsersVueDto> addingEntity(@RequestBody @Validated UsersCreatedDto dto, HttpServletRequest request) throws URISyntaxException {
+    public ResponseEntity<UsersVueDto> addingEntity(@RequestBody @Validated UpdateOrCreateUsers dto, HttpServletRequest request) throws URISyntaxException {
         UsersVueDto createdDto = usersService.addEntity(dto);
         String requestUrl = request.getRequestURL().toString();
         URI location = new URI(String.format("%s/%s", requestUrl, createdDto.getId()));
@@ -42,7 +42,7 @@ public class UsersController {
     }
 
     @PutMapping("/{usersUuid}")
-    public ResponseEntity<UsersVueDto> updateEntity(@RequestBody UsersCreatedDto usersCreatedDto, @PathVariable UUID usersUuid) {
-        return ResponseEntity.ok(usersService.updateEntity(usersCreatedDto, usersUuid));
+    public ResponseEntity<UsersVueDto> updateEntity(@RequestBody UpdateOrCreateUsers updateOrCreateUsers, @PathVariable UUID usersUuid) {
+        return ResponseEntity.ok(usersService.updateEntity(updateOrCreateUsers, usersUuid));
     }
 }

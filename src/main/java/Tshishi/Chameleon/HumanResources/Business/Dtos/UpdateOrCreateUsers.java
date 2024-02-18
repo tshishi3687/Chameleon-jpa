@@ -12,7 +12,7 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UsersCreatedDto implements IdentifiedDto<UUID> {
+public class UpdateOrCreateUsers implements IdentifiedDto<UUID> {
 
     private UUID id;
 
@@ -32,10 +32,9 @@ public class UsersCreatedDto implements IdentifiedDto<UUID> {
     private String mail;
 
     @NonNull
-    @Pattern(regexp = "^(\\+|00)\\d{1,4}[\\s\\./0-9]*$", message = "Numéro de téléphone européen invalide")
+    @Pattern(regexp = "^(\\+|00)\\d{1,4}[\\s./0-9]*$", message = "Numéro de téléphone européen invalide")
     private String phone;
 
-    @NonNull
     private String password;
 
     private List<RolesDto> rolesDtoList;
