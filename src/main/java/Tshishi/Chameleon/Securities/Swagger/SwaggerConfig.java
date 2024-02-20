@@ -14,7 +14,7 @@ public class SwaggerConfig {
     public GroupedOpenApi publicApi() {
         return GroupedOpenApi.builder()
                 .group("public-api")
-                .pathsToMatch("/**")
+                .pathsToMatch("/v01/**")
                 .build();
     }
 
@@ -22,8 +22,8 @@ public class SwaggerConfig {
     public OpenAPI springShopOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Mobembo.cd API")
+                        .title("Chameleon API")
                         .version("v0.0.1")
-                        .description("Mobembo.cd project API"));
+                        .description("Chameleon project API"));
     }
 }

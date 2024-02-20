@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Company extends BaseEntity {
 
-    @Column
+    @Column(unique = true)
     private String name;
 
     @OneToOne
