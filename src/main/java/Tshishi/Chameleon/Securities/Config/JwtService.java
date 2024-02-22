@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.security.KeyPair;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,7 +68,8 @@ public class JwtService {
     }
 
     private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(ConstParam.SECRET);
-        return Keys.hmacShaKeyFor(keyBytes);
+        KeyPair keyPair = Keys.keyPairFor(SignatureAlgorithm.ES256);
+        return keyPair.getPrivate();
     }
+
 }

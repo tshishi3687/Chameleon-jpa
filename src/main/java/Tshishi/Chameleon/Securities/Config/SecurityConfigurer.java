@@ -31,7 +31,7 @@ public class SecurityConfigurer {
                 .authorizeHttpRequests((auth) -> {
                             try {
                                 auth
-                                        .requestMatchers("/", "/favicon.ico", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/v01/users", "/v01/company/**").permitAll()
+                                        .requestMatchers("/", "/favicon.ico", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/v01/users", "/v01/company/**", "/v01/auth/**").permitAll()
 //                                        .requestMatchers(HttpMethod.POST, "/mobembo/v1/auth/**", "/personne/email", "/personne/change_passe", "/personne/mdp_modif", "/personne/activation_compte").permitAll()
 //                                        .requestMatchers(HttpMethod.GET, "/bien/count","/mobembo/v1/auth/**", "/bien/allBiens", "/province", "/ville", "/typebien", "/personne/nbcompte", "/pays").permitAll()
 //                                        .requestMatchers(HttpMethod.POST, "/ville/*", "/province/*", "/service/*", "/typebien/*", "/type/*", "/personne").hasAuthority("Admin")
