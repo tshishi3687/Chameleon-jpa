@@ -22,13 +22,8 @@ public class Company extends BaseEntity {
     @OneToOne
     private ContactDetails contactDetails;
 
-    @ManyToMany
-    @JoinTable(
-            name = "company_users",
-            joinColumns = @JoinColumn(name = "companyId"),
-            inverseJoinColumns = @JoinColumn(name = "usersId"))
-    @ToString.Exclude
-    private List<Users> tutors;
+    @ManyToOne
+    private Users tutors;
 
     @ManyToMany
     @JoinTable(

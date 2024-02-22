@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/Roles")
+@RequestMapping("/v01/Roles")
 @Tag(name = "Roles Controller", description = "API for managing roles")
 public class RolesController extends BaseController<RolesDto, UUID> {
 

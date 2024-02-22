@@ -8,7 +8,11 @@ import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.LoggerSt
 import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.LoggerTypes;
 import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.ServiceLogs;
 import Tshishi.Chameleon.HumanResources.DataAccess.Entities.ContactDetails;
+import Tshishi.Chameleon.HumanResources.DataAccess.Entities.Country;
+import Tshishi.Chameleon.HumanResources.DataAccess.Entities.Locality;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.ContactDetailsRepository;
+import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.CountryRepository;
+import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.LocalityRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,14 +24,17 @@ import java.util.logging.Logger;
 public class ContactDetailsService implements IdentifiedService<ContactDetailsDto, UUID> {
 
     private final ContactDetailsRepository contactDetailsRepository;
+    private final LocalityRepository localityRepository;
+    private final CountryRepository countryRepository;
     private final static Logger logger = Logger.getLogger(ContactDetailsService.class.getSimpleName());
-    private final ContactDetailsMapper contactDetailsMapper;
+    private final ContactDetailsMapper contactDetailsMapper = new ContactDetailsMapper();
     private final ServiceLogs serviceLogs;
 
-    public ContactDetailsService(ContactDetailsRepository contactDetailsRepository) {
+    public ContactDetailsService(ContactDetailsRepository contactDetailsRepository, LocalityRepository localityRepository, CountryRepository countryRepository) {
         this.contactDetailsRepository = contactDetailsRepository;
+        this.localityRepository = localityRepository;
+        this.countryRepository = countryRepository;
         this.serviceLogs = new ServiceLogs();
-        this.contactDetailsMapper = new ContactDetailsMapper();
     }
 
     @Override
@@ -35,8 +42,24 @@ public class ContactDetailsService implements IdentifiedService<ContactDetailsDt
         serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, dto, null);
         logger.info("Inject elements : locality, country, users.");
         ContactDetails contactDetails = contactDetailsMapper.toEntity(dto);
-        //        logger.info(String.format("This users with id : %s was be a new contact details.", dto.getUsers().getId()));
-        return contactDetailsMapper.toDto(contactDetailsRepository.save(contactDetails));
+
+        // set locality
+        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ENTITY, dto.getLocality(), dto.getLocality().getId());
+        localityRepository.findLocalityByName(dto.getLocality().getName().toUpperCase())
+                .ifPresentOrElse(
+                        contactDetails::setLocality,
+                        () -> localityRepository.save(new Locality(dto.getLocality().getName().toUpperCase()))
+                );
+
+        // set Country
+        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ENTITY, dto.getCountry(), dto.getCountry().getId());
+        countryRepository.findCountryByName(dto.getCountry().getName().toUpperCase())
+                .ifPresentOrElse(
+                        contactDetails::setCountry,
+                        () -> countryRepository.save(new Country(dto.getCountry().getName().toUpperCase()))
+                );
+
+        return contactDetailsMapper.toDto(contactDetailsRepository.saveAndFlush(contactDetails));
     }
 
     @Override

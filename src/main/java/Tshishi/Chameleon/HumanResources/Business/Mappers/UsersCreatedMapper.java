@@ -28,6 +28,7 @@ public class UsersCreatedMapper implements IdentifiedMapper<UpdateOrCreateUsers,
                 updateOrCreateUsers.getBirthDay(),
                 new ArrayList<>(),
                 new ArrayList<>(),
+                new ArrayList<>(),
                 true
         );
     }

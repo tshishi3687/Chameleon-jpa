@@ -1,6 +1,7 @@
 package Tshishi.Chameleon.HumanResources.DataAccess.Entities;
 
 import Tshishi.Chameleon.Common.AbstractClass.BaseEntity;
+import Tshishi.Chameleon.Company.DataAccess.Entities.Company;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
@@ -58,6 +59,9 @@ public class Users extends BaseEntity implements UserDetails {
 
     @OneToMany
     private List<ContactDetails> contactDetails;
+
+    @OneToMany
+    private List<Company> companies;
 
     @Column
     private boolean active;

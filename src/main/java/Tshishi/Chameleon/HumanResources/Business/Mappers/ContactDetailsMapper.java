@@ -26,8 +26,8 @@ public class ContactDetailsMapper implements IdentifiedMapper<ContactDetailsDto,
         return new ContactDetails(
                 contactDetailsDto.getAddress(),
                 contactDetailsDto.getNumber(),
-                null,
-                null
+                contactDetailsDto.getLocality() != null? localityMapper.toEntity(contactDetailsDto.getLocality()): null,
+                contactDetailsDto.getCountry() != null? countryMapper.toEntity(contactDetailsDto.getCountry()): null
         );
     }
 

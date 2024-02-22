@@ -4,7 +4,6 @@ import Tshishi.Chameleon.Securities.ConstParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -32,7 +31,7 @@ public class SecurityConfigurer {
                 .authorizeHttpRequests((auth) -> {
                             try {
                                 auth
-                                        .requestMatchers("/", "/favicon.ico", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                                        .requestMatchers("/", "/favicon.ico", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/v01/users", "/v01/company/**").permitAll()
 //                                        .requestMatchers(HttpMethod.POST, "/mobembo/v1/auth/**", "/personne/email", "/personne/change_passe", "/personne/mdp_modif", "/personne/activation_compte").permitAll()
 //                                        .requestMatchers(HttpMethod.GET, "/bien/count","/mobembo/v1/auth/**", "/bien/allBiens", "/province", "/ville", "/typebien", "/personne/nbcompte", "/pays").permitAll()
 //                                        .requestMatchers(HttpMethod.POST, "/ville/*", "/province/*", "/service/*", "/typebien/*", "/type/*", "/personne").hasAuthority("Admin")
