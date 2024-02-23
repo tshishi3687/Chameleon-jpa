@@ -55,7 +55,7 @@ public class UsersService {
                             usersAtomicReference.set(usersCreatedMapper.toEntity(dto));
 
                             // Check or init roles
-                            checkOrInitRoles(usersAtomicReference, dto);
+//                            checkOrInitRoles(usersAtomicReference, dto);
 
                             // Crypte password
                             usersAtomicReference.get().setPassWord(bCryptPasswordEncoder.encode(dto.getPassword()));

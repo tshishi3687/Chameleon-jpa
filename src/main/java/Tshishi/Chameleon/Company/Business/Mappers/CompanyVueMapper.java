@@ -12,7 +12,8 @@ public class CompanyVueMapper implements IdentifiedMapper<CompanyVueDto, Company
     public CompanyVueDto toDto(Company company) {
         return new CompanyVueDto(
                 company.getId(),
-                company.getName()
+                company.getName(),
+                null
         );
     }
 

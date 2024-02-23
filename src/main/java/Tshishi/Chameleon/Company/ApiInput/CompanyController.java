@@ -1,5 +1,6 @@
 package Tshishi.Chameleon.Company.ApiInput;
 
+import Tshishi.Chameleon.Company.Business.Dtos.CompanySelectedDto;
 import Tshishi.Chameleon.Company.Business.Dtos.CompanyVueDto;
 import Tshishi.Chameleon.Company.Business.Dtos.CreatedCompanyDto;
 import Tshishi.Chameleon.Company.Business.Services.CompanyService;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -24,9 +26,9 @@ public class CompanyController {
         this.companyService = companyService;
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<CompanyVueDto> add(@RequestBody CreatedCompanyDto dto, HttpServletRequest request) throws URISyntaxException {
-        CompanyVueDto companyVueDto1 = companyService.addEntity(dto);
+    @PostMapping("/add/{usersUuid}")
+    public ResponseEntity<CompanyVueDto> add(@RequestBody CreatedCompanyDto dto, HttpServletRequest request, @PathVariable UUID usersUuid) throws URISyntaxException {
+        CompanyVueDto companyVueDto1 = companyService.addEntity(dto, usersUuid);
         String requestUrl = request.getRequestURL().toString();
         URI location = new URI(String.format("%s/%s", requestUrl, companyVueDto1.getId()));
         return ResponseEntity.created(location).body(companyVueDto1);
@@ -38,5 +40,15 @@ public class CompanyController {
         String requestUrl = request.getRequestURL().toString();
         URI location = new URI(String.format("%s/%s", requestUrl, companyVueDto1.getId()));
         return ResponseEntity.created(location).body(companyVueDto1);
+    }
+
+    @GetMapping("/selected/{companyUuid}")
+    public ResponseEntity<CompanySelectedDto> getSelectedCompany(@PathVariable UUID companyUuid) {
+        return ResponseEntity.ok(companyService.getSelectedCompany(companyUuid));
+    }
+
+    @GetMapping("/mines/{usersUuid}")
+    public ResponseEntity<List<CompanyVueDto>> getCompany(@PathVariable UUID usersUuid) {
+        return ResponseEntity.ok(companyService.getAllMineCompanies(usersUuid));
     }
 }

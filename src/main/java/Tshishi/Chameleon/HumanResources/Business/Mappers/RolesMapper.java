@@ -21,6 +21,7 @@ public class RolesMapper implements IdentifiedMapper<RolesDto, Roles> {
     public Roles toEntity(RolesDto rolesDto) {
         return new Roles(
                 rolesDto.getName().toUpperCase(),
+                null,
                 new ArrayList<>()
         );
     }
