@@ -4,6 +4,7 @@ import Tshishi.Chameleon.Securities.ConstParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -31,16 +32,10 @@ public class SecurityConfigurer {
                 .authorizeHttpRequests((auth) -> {
                             try {
                                 auth
-                                        .requestMatchers("/", "/favicon.ico", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/v01/users", "/v01/company/**", "/v01/auth/**").permitAll()
-//                                        .requestMatchers(HttpMethod.POST, "/mobembo/v1/auth/**", "/personne/email", "/personne/change_passe", "/personne/mdp_modif", "/personne/activation_compte").permitAll()
-//                                        .requestMatchers(HttpMethod.GET, "/bien/count","/mobembo/v1/auth/**", "/bien/allBiens", "/province", "/ville", "/typebien", "/personne/nbcompte", "/pays").permitAll()
-//                                        .requestMatchers(HttpMethod.POST, "/ville/*", "/province/*", "/service/*", "/typebien/*", "/type/*", "/personne").hasAuthority("Admin")
-//                                        .requestMatchers(HttpMethod.DELETE, "/ville/", "/province/", "/service/", "/typebien/", "/type/", "/personne").hasAuthority("Admin")
-//                                        .requestMatchers(HttpMethod.GET, "/service/*", "/type_bien/*", "/type/*", "/personne").hasAuthority("Admin")
-//                                        .requestMatchers(HttpMethod.POST, "/service/*", "/type_bien/*", "/type/*", "/personne").hasAuthority("Admin")
-//                                        .requestMatchers(HttpMethod.DELETE, "/service/", "/type_bien/", "/type/", "/personne").hasAuthority("Admin")
-//                                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-//                                        .anyRequest().authenticated()
+                                        .requestMatchers("/", "/favicon.ico", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                                        .requestMatchers(HttpMethod.POST, "/v01/auth/authenticate").permitAll()
+                                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                        .anyRequest().authenticated()
                                         .and()
                                         .sessionManagement()
                                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
