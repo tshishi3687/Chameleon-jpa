@@ -23,9 +23,9 @@ public class AuthenticationController {
     }
 
     @PostMapping("/authenticate")
-    public void authenticate(
+    public ResponseEntity<?> authenticate(
             @RequestBody AuthenticationRequest request, HttpServletResponse response
     ) throws IOException {
-        service.authenticate(request, response);
+        return ResponseEntity.ok(service.authenticate(request, response));
     }
 }

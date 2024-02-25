@@ -141,8 +141,16 @@ public class CompanyService {
         return companySelectedDtoAtomicReference.get();
     }
 
-    public List<CompanyVueDto> getAllMineCompanies(UUID usersUuid) {
-        return companyVueMapper.toDtos(companyRepository.findCompaniesByUserId(usersUuid));
+    public List<CompanyVueDto> getAllMineCompanies() {
+        AtomicReference<List<CompanyVueDto>> companyVueDtoAtomicReference = new AtomicReference<>();
+        usersRepository.findUsersByMailOrPhoneOrBusinessNumber(jwtAuthenticationFilter.userEmail, jwtAuthenticationFilter.userEmail, jwtAuthenticationFilter.userEmail)
+                .ifPresentOrElse(
+                        foundUser -> {
+                            companyVueDtoAtomicReference.set(companyVueMapper.toDtos(companyRepository.findCompaniesByUserId(foundUser.getId())));
+                        },
+                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, new CompanyVueDto(), UUID.randomUUID())
+                );
+        return companyVueDtoAtomicReference.get();
     }
 
     public Boolean isNameExist(String name) {

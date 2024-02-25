@@ -34,7 +34,6 @@ public class SecurityConfigurer {
                                 auth
                                         .requestMatchers("/", "/favicon.ico", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                                         .requestMatchers(HttpMethod.POST, "/v01/auth/authenticate").permitAll()
-                                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                         .anyRequest().authenticated()
                                         .and()
                                         .sessionManagement()

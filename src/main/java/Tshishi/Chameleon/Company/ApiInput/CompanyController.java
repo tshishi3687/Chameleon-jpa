@@ -47,8 +47,8 @@ public class CompanyController {
         return ResponseEntity.ok(companyService.getSelectedCompany(companyUuid));
     }
 
-    @GetMapping("/mines/{usersUuid}")
-    public ResponseEntity<List<CompanyVueDto>> getCompany(@PathVariable UUID usersUuid) {
-        return ResponseEntity.ok(companyService.getAllMineCompanies(usersUuid));
+    @GetMapping("/minesCompany")
+    public ResponseEntity<List<CompanyVueDto>> getMinesCompany() {
+        return ResponseEntity.ok(companyService.getAllMineCompanies());
     }
 }

@@ -1,7 +1,6 @@
 package Tshishi.Chameleon.Securities.Config;
 
 import Tshishi.Chameleon.Securities.ConstParam;
-import Tshishi.Chameleon.Securities.JwtTokenUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,26 +22,25 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final JwtTokenUtil jwtTokenUtil;
     private final UserDetailsService userDetailsService;
     public String userEmail;
 
     @Override
-    protected void doFilterInternal(
-            @NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain
     ) throws ServletException, IOException {
+
         final String authHeader = request.getHeader(ConstParam.JWT_NAME);
          String jwt = "";
         if (authHeader != null) {
             jwt = authHeader.replace(ConstParam.BEARER, "");
-            userEmail = jwtTokenUtil.getUsernameFromToken(jwt);
+            System.out.println("JWT Token: " + jwt);
+            System.out.println("JWT length: " + jwt.length());
+            userEmail = jwtService.getUsernameFromToken(jwt);
         }
 
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null){
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-            if (jwtService.tokenValid(jwt, userDetails)) {
+            if (jwtService.validateToken(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
