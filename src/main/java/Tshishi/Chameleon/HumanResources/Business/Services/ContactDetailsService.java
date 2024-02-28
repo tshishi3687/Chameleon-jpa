@@ -13,6 +13,7 @@ import Tshishi.Chameleon.HumanResources.DataAccess.Entities.Locality;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.ContactDetailsRepository;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.CountryRepository;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.LocalityRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 @Service
+@RequiredArgsConstructor
 public class ContactDetailsService implements IdentifiedService<ContactDetailsDto, UUID> {
 
     private final ContactDetailsRepository contactDetailsRepository;
@@ -28,14 +30,8 @@ public class ContactDetailsService implements IdentifiedService<ContactDetailsDt
     private final CountryRepository countryRepository;
     private final static Logger logger = Logger.getLogger(ContactDetailsService.class.getSimpleName());
     private final ContactDetailsMapper contactDetailsMapper = new ContactDetailsMapper();
-    private final ServiceLogs serviceLogs;
+    private final ServiceLogs serviceLogs = new ServiceLogs();
 
-    public ContactDetailsService(ContactDetailsRepository contactDetailsRepository, LocalityRepository localityRepository, CountryRepository countryRepository) {
-        this.contactDetailsRepository = contactDetailsRepository;
-        this.localityRepository = localityRepository;
-        this.countryRepository = countryRepository;
-        this.serviceLogs = new ServiceLogs();
-    }
 
     @Override
     public ContactDetailsDto addEntity(ContactDetailsDto dto) {

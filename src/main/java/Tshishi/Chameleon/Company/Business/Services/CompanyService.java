@@ -24,6 +24,7 @@ import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.RolesRepository;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.UsersRepository;
 import Tshishi.Chameleon.Securities.Config.JwtAuthenticationFilter;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
+@RequiredArgsConstructor
 public class CompanyService {
 
     private final CompanyRepository companyRepository;
@@ -45,18 +47,8 @@ public class CompanyService {
     private final ContactDetailsService contactDetailsService;
     private final UsersService usersService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final ServiceLogs serviceLogs;
+    private final ServiceLogs serviceLogs = new ServiceLogs();
 
-    public CompanyService(CompanyRepository companyRepository, UsersRepository usersRepository, RolesRepository rolesRepository, ContactDetailsRepository contactDetailsRepository, ContactDetailsService contactDetailsService, UsersService usersService, JwtAuthenticationFilter jwtAuthenticationFilter) {
-        this.companyRepository = companyRepository;
-        this.usersRepository = usersRepository;
-        this.rolesRepository = rolesRepository;
-        this.contactDetailsRepository = contactDetailsRepository;
-        this.contactDetailsService = contactDetailsService;
-        this.usersService = usersService;
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.serviceLogs = new ServiceLogs();
-    }
 
     @Transactional
     public CompanyVueDto addEntity(CreatedCompanyDto dto, UUID usersUuid) {
@@ -145,9 +137,7 @@ public class CompanyService {
         AtomicReference<List<CompanyVueDto>> companyVueDtoAtomicReference = new AtomicReference<>();
         usersRepository.findUsersByMailOrPhoneOrBusinessNumber(jwtAuthenticationFilter.userEmail, jwtAuthenticationFilter.userEmail, jwtAuthenticationFilter.userEmail)
                 .ifPresentOrElse(
-                        foundUser -> {
-                            companyVueDtoAtomicReference.set(companyVueMapper.toDtos(companyRepository.findCompaniesByUserId(foundUser.getId())));
-                        },
+                        foundUser -> companyVueDtoAtomicReference.set(companyVueMapper.toDtos(companyRepository.findCompaniesByUserId(foundUser.getId()))),
                         () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, new CompanyVueDto(), UUID.randomUUID())
                 );
         return companyVueDtoAtomicReference.get();

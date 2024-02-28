@@ -7,6 +7,7 @@ import Tshishi.Chameleon.Company.Business.Services.CompanyService;
 import Tshishi.Chameleon.HumanResources.Business.Dtos.UpdateOrCreateUsers;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,13 +19,10 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/v01/company")
 @Tag(name = "Company Controller", description = "API for managing company")
+@RequiredArgsConstructor
 public class CompanyController {
 
     private final CompanyService companyService;
-
-    public CompanyController(CompanyService companyService) {
-        this.companyService = companyService;
-    }
 
     @PostMapping("/add/{usersUuid}")
     public ResponseEntity<CompanyVueDto> add(@RequestBody CreatedCompanyDto dto, HttpServletRequest request, @PathVariable UUID usersUuid) throws URISyntaxException {

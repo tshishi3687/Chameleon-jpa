@@ -8,22 +8,19 @@ import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.LoggerTy
 import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.ServiceLogs;
 import Tshishi.Chameleon.HumanResources.DataAccess.Entities.Roles;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.RolesRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class RolesService implements IdentifiedService<RolesDto, UUID> {
 
     private final RolesRepository rolesRepository;
     private final RolesMapper rolesMapper = new RolesMapper();
-    private final ServiceLogs serviceLogs;
-
-    public RolesService(RolesRepository rolesRepository) {
-        this.rolesRepository = rolesRepository;
-        this.serviceLogs = new ServiceLogs();
-    }
+    private final ServiceLogs serviceLogs = new ServiceLogs();
 
     @Override
     public RolesDto addEntity(RolesDto dto) {

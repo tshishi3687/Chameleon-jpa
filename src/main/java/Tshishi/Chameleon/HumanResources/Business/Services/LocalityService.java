@@ -9,22 +9,19 @@ import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.LoggerTy
 import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.ServiceLogs;
 import Tshishi.Chameleon.HumanResources.DataAccess.Entities.Locality;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.LocalityRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class LocalityService implements IdentifiedService<LocalityDto, UUID> {
 
     private final LocalityRepository localityRepository;
     private final LocalityMapper localityMapper = new LocalityMapper();
-    private final ServiceLogs serviceLogs;
-
-    public LocalityService(LocalityRepository localityRepository) {
-        this.localityRepository = localityRepository;
-        this.serviceLogs = new ServiceLogs();
-    }
+    private final ServiceLogs serviceLogs = new ServiceLogs();
 
     @Override
     public LocalityDto addEntity(LocalityDto dto) {

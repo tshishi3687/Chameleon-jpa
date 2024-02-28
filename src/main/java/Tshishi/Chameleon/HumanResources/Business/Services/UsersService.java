@@ -9,6 +9,7 @@ import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.ServiceL
 import Tshishi.Chameleon.HumanResources.DataAccess.Entities.*;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.*;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,30 +20,19 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
+@RequiredArgsConstructor
 public class UsersService {
 
     private final UsersCreatedMapper usersCreatedMapper = new UsersCreatedMapper();
     private final UsersVueMapper usersVueMapper = new UsersVueMapper();
     private final UsersRepository usersRepository;
-    private final ServiceLogs serviceLogs;
+    private final ServiceLogs serviceLogs = new ServiceLogs();
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final RolesRepository rolesRepository;
     private final ContactDetailsRepository contactDetailsRepository;
-    private final ContactDetailsMapper contactDetailsMapper;
+    private final ContactDetailsMapper contactDetailsMapper = new ContactDetailsMapper();
     private final LocalityRepository localityRepository;
     private final CountryRepository countryRepository;
-
-
-    public UsersService(UsersRepository usersRepository, BCryptPasswordEncoder bCryptPasswordEncoder, RolesRepository rolesRepository, ContactDetailsRepository contactDetailsRepository, LocalityRepository localityRepository, CountryRepository countryRepository) {
-        this.usersRepository = usersRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.rolesRepository = rolesRepository;
-        this.contactDetailsRepository = contactDetailsRepository;
-        this.contactDetailsMapper = new ContactDetailsMapper();
-        this.localityRepository = localityRepository;
-        this.countryRepository = countryRepository;
-        this.serviceLogs = new ServiceLogs();
-    }
 
     @Transactional
     public UsersVueDto addEntity(UpdateOrCreateUsers dto) {

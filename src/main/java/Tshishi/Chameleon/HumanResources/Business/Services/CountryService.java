@@ -9,22 +9,19 @@ import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.LoggerTy
 import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.ServiceLogs;
 import Tshishi.Chameleon.HumanResources.DataAccess.Entities.Country;
 import Tshishi.Chameleon.HumanResources.DataAccess.Repositories.CountryRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class CountryService implements IdentifiedService<CountryDto, UUID> {
 
     private final CountryRepository countryRepository;
     private final CountryMapper countryMapper = new CountryMapper();
-    private final ServiceLogs serviceLogs;
-
-    public CountryService(CountryRepository countryRepository) {
-        this.countryRepository = countryRepository;
-        this.serviceLogs = new ServiceLogs();
-    }
+    private final ServiceLogs serviceLogs = new ServiceLogs();
 
     @Override
     public CountryDto addEntity(CountryDto dto) {
