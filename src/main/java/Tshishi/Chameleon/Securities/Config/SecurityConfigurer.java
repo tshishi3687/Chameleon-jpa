@@ -33,7 +33,7 @@ public class SecurityConfigurer {
                             try {
                                 auth
                                         .requestMatchers("/", "/favicon.ico", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
-                                        .requestMatchers(HttpMethod.POST, "/v01/auth/authenticate").permitAll()
+                                        .requestMatchers( "/v01/auth/authenticate").permitAll()
                                         .anyRequest().authenticated()
                                         .and()
                                         .sessionManagement()
