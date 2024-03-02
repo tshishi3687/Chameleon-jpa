@@ -56,8 +56,12 @@ public class RolesService implements IdentifiedService<RolesDto, UUID> {
 
     @Override
     public List<RolesDto> readAllEntities() {
+        return null;
+    }
+
+    public List<RolesDto> readAllRoles(UUID companyId) {
         serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ALL_ENTITY, new RolesDto(), null);
-        return rolesMapper.toDtos(rolesRepository.findAll());
+        return rolesMapper.toDtos(rolesRepository.findAllByCompany_Id(companyId));
     }
 
     @Override
