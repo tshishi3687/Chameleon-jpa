@@ -1,6 +1,6 @@
 package Tshishi.Chameleon.Company.ApiInput;
 
-import Tshishi.Chameleon.Company.Business.Dtos.CompanySelectedDto;
+import Tshishi.Chameleon.Company.Business.Dtos.passportDto;
 import Tshishi.Chameleon.Company.Business.Dtos.CompanyVueDto;
 import Tshishi.Chameleon.Company.Business.Dtos.CreatedCompanyDto;
 import Tshishi.Chameleon.Company.Business.Services.CompanyService;
@@ -41,7 +41,7 @@ public class CompanyController {
     }
 
     @GetMapping("/selected/{companyUuid}")
-    public ResponseEntity<CompanySelectedDto> getSelectedCompany(@PathVariable UUID companyUuid) {
+    public ResponseEntity<passportDto> getSelectedCompany(@PathVariable UUID companyUuid) {
         return ResponseEntity.ok(companyService.getSelectedCompany(companyUuid));
     }
 

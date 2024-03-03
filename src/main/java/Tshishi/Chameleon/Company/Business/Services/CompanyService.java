@@ -1,6 +1,6 @@
 package Tshishi.Chameleon.Company.Business.Services;
 
-import Tshishi.Chameleon.Company.Business.Dtos.CompanySelectedDto;
+import Tshishi.Chameleon.Company.Business.Dtos.passportDto;
 import Tshishi.Chameleon.Company.Business.Dtos.CompanyVueDto;
 import Tshishi.Chameleon.Company.Business.Dtos.CreatedCompanyDto;
 import Tshishi.Chameleon.Company.Business.Mappers.CompanyVueMapper;
@@ -110,8 +110,8 @@ public class CompanyService {
         return companyVueDtoAtomicReference.get();
     }
 
-    public CompanySelectedDto getSelectedCompany(UUID companyId) {
-        AtomicReference<CompanySelectedDto> companySelectedDtoAtomicReference = new AtomicReference<>();
+    public passportDto getSelectedCompany(UUID companyId) {
+        AtomicReference<passportDto> companySelectedDtoAtomicReference = new AtomicReference<>();
         String logger = jwtAuthenticationFilter.userEmail;
         usersRepository.findUsersByMailOrPhoneOrBusinessNumber(logger, logger, logger)
                 .ifPresentOrElse(
@@ -121,10 +121,10 @@ public class CompanyService {
                                             List<Roles> roles = foundUsers.getRolesList().stream().filter(roles1 -> roles1.getCompany().getId().equals(companyId)).toList();
                                             UsersVueDto vueDto = usersVueMapper.toDto(foundUsers);
                                             vueDto.setRolesDtoList(rolesMapper.toDtos(roles));
-                                            CompanySelectedDto companySelectedDto = new CompanySelectedDto();
-                                            companySelectedDto.setUsersVue(vueDto);
-                                            companySelectedDto.setCompanyVue(companyVueMapper.toDto(foudCompany));
-                                            companySelectedDtoAtomicReference.set(companySelectedDto);
+                                            passportDto passportDto = new passportDto();
+                                            passportDto.setUsersVue(vueDto);
+                                            passportDto.setCompanyVue(companyVueMapper.toDto(foudCompany));
+                                            companySelectedDtoAtomicReference.set(passportDto);
                                         },
                                         () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, new CompanyVueDto(), companyId)
                                 ),

@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CompanySelectedDto {
+public class passportDto {
 
     private CompanyVueDto companyVue;
     private UsersVueDto usersVue;
