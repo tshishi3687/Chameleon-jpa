@@ -4,10 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v01/auth")
@@ -22,5 +19,10 @@ public class AuthenticationController {
             @RequestBody AuthenticationRequest request, HttpServletResponse response
     ) {
         return ResponseEntity.ok(service.authenticate(request, response));
+    }
+
+    @GetMapping("/validateToken")
+    public ResponseEntity<?> validateToken() {
+        return ResponseEntity.ok(service.validateToken());
     }
 }

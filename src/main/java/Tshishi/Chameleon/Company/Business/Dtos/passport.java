@@ -10,8 +10,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class passportDto {
+public class passport {
 
-    private CompanyVueDto companyVue;
-    private UsersVueDto usersVue;
+    private CompanyVueDto company;
+    private UsersVueDto users;
 }
