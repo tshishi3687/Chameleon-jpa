@@ -51,7 +51,7 @@ public class UsersService {
                             usersAtomicReference.get().setPassWord(bCryptPasswordEncoder.encode(dto.getPassword()));
 
                             // Add roles
-                            addUsersRoles(usersAtomicReference, dto);
+//                            addUsersRoles(usersAtomicReference, dto);
 
                             // creat success logs
                             usersAtomicReference.get().getRolesList().forEach(roles -> serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.READING_ENTITY, new RolesDto(), roles.getId()));
@@ -81,9 +81,9 @@ public class UsersService {
 
                             // Update BirthDay
                             updateBirthday(value, dto);
-
-                            // Update Roles
-                            updateRoles(value, dto.getRolesDtoList());
+//
+//                            // Update Roles
+//                            updateRoles(value, dto.getRolesDtoList());
 
                             // Update Contact Details
                             updateContactDetails(value, dto.getContactDetails());
