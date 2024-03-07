@@ -57,8 +57,13 @@ public class CountryService implements IdentifiedService<CountryDto, UUID> {
 
     @Override
     public List<CountryDto> readAllEntities() {
-        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ALL_ENTITY, new RolesDto(), null);
+        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ALL_ENTITY, new CountryDto(), null);
         return countryMapper.toDtos(countryRepository.findAll());
+    }
+
+    public List<CountryDto> readAllEntitiesWhichContainsString(String search) {
+        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.READING_ALL_ENTITY, new CountryDto(), null);
+        return countryMapper.toDtos(countryRepository.findAllByNameContainingOrderByNameAsc(search));
     }
 
     @Override

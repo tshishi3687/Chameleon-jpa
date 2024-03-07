@@ -32,7 +32,7 @@ public class SecurityConfigurer {
                             try {
                                 auth
                                         .requestMatchers("/", "/favicon.ico", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
-                                        .requestMatchers( "/v01/auth/authenticate").permitAll()
+                                        .requestMatchers( "/v01/auth/authenticate", "/v01/Locality/whichContains/***", "/v01/Country/whichContains/***").permitAll()
                                         .anyRequest().authenticated()
                                         .and()
                                         .sessionManagement()

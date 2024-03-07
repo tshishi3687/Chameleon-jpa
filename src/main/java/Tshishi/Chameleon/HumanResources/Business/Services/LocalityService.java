@@ -57,8 +57,13 @@ public class LocalityService implements IdentifiedService<LocalityDto, UUID> {
 
     @Override
     public List<LocalityDto> readAllEntities() {
-        serviceLogs.logsConstruction(LoggerStep.TRY,LoggerTypes.READING_ALL_ENTITY, new RolesDto(), null);
+        serviceLogs.logsConstruction(LoggerStep.TRY,LoggerTypes.READING_ALL_ENTITY, new LocalityDto(), null);
         return localityMapper.toDtos(localityRepository.findAll());
+    }
+
+    public List<LocalityDto> readAllEntitiesWhichContainsString(String search) {
+        serviceLogs.logsConstruction(LoggerStep.TRY,LoggerTypes.READING_ALL_ENTITY, new LocalityDto(), null);
+        return localityMapper.toDtos(localityRepository.findAllByNameContainingOrderByNameAsc(search));
     }
 
     @Override
