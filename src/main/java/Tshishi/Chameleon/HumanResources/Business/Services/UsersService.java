@@ -2,7 +2,6 @@ package Tshishi.Chameleon.HumanResources.Business.Services;
 
 import Tshishi.Chameleon.HumanResources.Business.Dtos.*;
 import Tshishi.Chameleon.HumanResources.Business.Mappers.*;
-import Tshishi.Chameleon.HumanResources.Business.Services.Common.Enum.UsersRoles;
 import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.LoggerStep;
 import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.LoggerTypes;
 import Tshishi.Chameleon.HumanResources.Business.Services.Common.Logger.ServiceLogs;
@@ -28,7 +27,6 @@ public class UsersService {
     private final UsersRepository usersRepository;
     private final ServiceLogs serviceLogs = new ServiceLogs();
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final RolesRepository rolesRepository;
     private final ContactDetailsRepository contactDetailsRepository;
     private final ContactDetailsMapper contactDetailsMapper = new ContactDetailsMapper();
     private final LocalityRepository localityRepository;

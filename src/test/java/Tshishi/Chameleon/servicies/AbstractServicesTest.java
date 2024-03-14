@@ -52,7 +52,7 @@ public abstract class AbstractServicesTest {
     }
 
     private static UpdateOrCreateUsers readUsersCreatedJson() throws IOException {
-        String jsonFilePath = "src/test/java/Tshishi/Chameleon/jsons/UsersCreated.json";
+        String jsonFilePath = "src/test/resources/json/UsersCreated.json";
         File jsonFile = new File(jsonFilePath);
         if (!jsonFile.exists()) {
             System.out.println("Le fichier JSON n'existe pas.");

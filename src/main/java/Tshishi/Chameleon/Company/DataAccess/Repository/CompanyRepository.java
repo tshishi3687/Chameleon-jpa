@@ -11,7 +11,6 @@ import java.util.UUID;
 
 public interface CompanyRepository extends JpaRepository<Company, UUID> {
     Optional<Company> findByName(String name);
-
     @Query("SELECT DISTINCT c FROM Company c " +
             "LEFT JOIN c.tutors t " +
             "LEFT JOIN c.workers w on w.Id = c.Id " +

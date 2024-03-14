@@ -1,0 +1,45 @@
+{
+  "company":
+  {
+    "name": "Mobembo.cd",
+    "businessNumber": "7854GRT-e443-75H2",
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "contactDetails": {
+      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "address": "Rue de la paix",
+      "number": "44",
+      "locality": {
+        "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "name": "98763 mouldy "
+      },
+      "country": {
+        "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "name": "Pakistan"
+      }
+    }
+  },
+  "users": {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "birthDay": "1987-06-03",
+    "contactDetails": [
+      {
+        "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "address": "Grand-Duc de Luxembourg",
+        "number": "1",
+        "locality": {
+          "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          "name": "1000 "
+        },
+        "country": {
+          "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          "name": "Luxembourg"
+        }
+      }
+    ],
+    "firstName": "Jhon",
+    "lastName": "Do",
+    "mail": "test@test.com",
+    "password": "pass",
+    "phone": "0493493493"
+  }
+}
