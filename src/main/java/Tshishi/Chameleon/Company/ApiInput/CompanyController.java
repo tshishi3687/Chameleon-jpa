@@ -1,8 +1,8 @@
 package Tshishi.Chameleon.Company.ApiInput;
 
+import Tshishi.Chameleon.Company.Business.Dtos.AddCompanyAndUsers;
 import Tshishi.Chameleon.Company.Business.Dtos.passport;
 import Tshishi.Chameleon.Company.Business.Dtos.CompanyVueDto;
-import Tshishi.Chameleon.Company.Business.Dtos.CreatedCompanyDto;
 import Tshishi.Chameleon.Company.Business.Services.CompanyService;
 import Tshishi.Chameleon.HumanResources.Business.Dtos.UpdateOrCreateUsers;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,9 +24,9 @@ public class CompanyController {
 
     private final CompanyService companyService;
 
-    @PostMapping("/add/{usersUuid}")
-    public ResponseEntity<CompanyVueDto> add(@RequestBody CreatedCompanyDto dto, HttpServletRequest request, @PathVariable UUID usersUuid) throws URISyntaxException {
-        CompanyVueDto companyVueDto1 = companyService.addEntity(dto, usersUuid);
+    @PostMapping("/add")
+    public ResponseEntity<CompanyVueDto> add(@RequestBody AddCompanyAndUsers dto, HttpServletRequest request) throws URISyntaxException {
+        CompanyVueDto companyVueDto1 = companyService.addEntity(dto);
         String requestUrl = request.getRequestURL().toString();
         URI location = new URI(String.format("%s/%s", requestUrl, companyVueDto1.getId()));
         return ResponseEntity.created(location).body(companyVueDto1);

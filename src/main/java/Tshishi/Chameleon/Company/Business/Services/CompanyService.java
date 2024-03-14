@@ -1,8 +1,8 @@
 package Tshishi.Chameleon.Company.Business.Services;
 
+import Tshishi.Chameleon.Company.Business.Dtos.AddCompanyAndUsers;
 import Tshishi.Chameleon.Company.Business.Dtos.passport;
 import Tshishi.Chameleon.Company.Business.Dtos.CompanyVueDto;
-import Tshishi.Chameleon.Company.Business.Dtos.CreatedCompanyDto;
 import Tshishi.Chameleon.Company.Business.Mappers.CompanyVueMapper;
 import Tshishi.Chameleon.Company.Business.Mappers.CreatedCompanyMapper;
 import Tshishi.Chameleon.Company.DataAccess.Entities.Company;
@@ -51,18 +51,19 @@ public class CompanyService {
 
 
     @Transactional
-    public CompanyVueDto addEntity(CreatedCompanyDto dto, UUID usersUuid) {
-        if (isNameExist(dto.getName())) {
-            serviceLogs.logsConstruction(LoggerStep.EXISTED, LoggerTypes.ADDING_ENTITY, dto, null);
+    public CompanyVueDto addEntity(AddCompanyAndUsers dto) {
+        if (isNameExist(dto.getCompany().getName())) {
+            serviceLogs.logsConstruction(LoggerStep.EXISTED, LoggerTypes.ADDING_ENTITY, dto.getCompany(), null);
         }
 
-        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, dto, null);
+        UsersVueDto usersVueDto = usersService.addEntity(dto.getUsers());
+        serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, dto.getUsers(), null);
         AtomicReference<CompanyVueDto> companyVueDtoAtomicReference = new AtomicReference<>();
-        usersRepository.findById(usersUuid)
+        usersRepository.findById(usersVueDto.getId())
                 .ifPresentOrElse(
                         value -> {
-                            Company company = createdCompanyMapper.toEntity(dto);
-                            ContactDetails contactDetails = contactDetailsRepository.findById(contactDetailsService.addEntity(dto.getContactDetails()).getId()).orElseThrow();
+                            Company company = createdCompanyMapper.toEntity(dto.getCompany());
+                            ContactDetails contactDetails = contactDetailsRepository.findById(contactDetailsService.addEntity(dto.getCompany().getContactDetails()).getId()).orElseThrow();
                             company.setContactDetails(contactDetails);
                             company.setTutors(value);
                             Company companyUpdated = companyRepository.save(company);
@@ -78,7 +79,7 @@ public class CompanyService {
 
                             value.getRolesList().add(roles);
                         },
-                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, dto, usersUuid)
+                        () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, dto.getCompany(), UUID.randomUUID())
                 );
         serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.ADDING_ENTITY, companyVueDtoAtomicReference.get(), companyVueDtoAtomicReference.get().getId());
         return companyVueDtoAtomicReference.get();
@@ -87,7 +88,7 @@ public class CompanyService {
     @Transactional
     public CompanyVueDto addNewWorker(UUID companyId, UpdateOrCreateUsers dto) {
         AtomicReference<CompanyVueDto> companyVueDtoAtomicReference = new AtomicReference<>();
-        usersRepository.findUsersByMailOrPhoneOrBusinessNumber(jwtAuthenticationFilter.userEmail, jwtAuthenticationFilter.userEmail, jwtAuthenticationFilter.userEmail)
+        usersRepository.findUsersByMailOrPhone(jwtAuthenticationFilter.userEmail, jwtAuthenticationFilter.userEmail)
                 .ifPresentOrElse(
                         users -> {
                             Roles roles = users.getRolesList().stream().filter(role -> role.getName().equals(UsersRoles.SUPER_ADMIN.getRoleName()))
@@ -113,7 +114,7 @@ public class CompanyService {
     public passport getSelectedCompany(UUID companyId) {
         AtomicReference<passport> companySelectedDtoAtomicReference = new AtomicReference<>();
         String logger = jwtAuthenticationFilter.userEmail;
-        usersRepository.findUsersByMailOrPhoneOrBusinessNumber(logger, logger, logger)
+        usersRepository.findUsersByMailOrPhone(logger, logger)
                 .ifPresentOrElse(
                         foundUsers -> companyRepository.findById(companyId)
                                 .ifPresentOrElse(
@@ -135,7 +136,7 @@ public class CompanyService {
 
     public List<CompanyVueDto> getAllMineCompanies() {
         AtomicReference<List<CompanyVueDto>> companyVueDtoAtomicReference = new AtomicReference<>();
-        usersRepository.findUsersByMailOrPhoneOrBusinessNumber(jwtAuthenticationFilter.userEmail, jwtAuthenticationFilter.userEmail, jwtAuthenticationFilter.userEmail)
+        usersRepository.findUsersByMailOrPhone(jwtAuthenticationFilter.userEmail, jwtAuthenticationFilter.userEmail)
                 .ifPresentOrElse(
                         foundUser -> companyVueDtoAtomicReference.set(companyVueMapper.toDtos(companyRepository.findCompaniesByUserId(foundUser.getId()))),
                         () -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.READING_ENTITY, new CompanyVueDto(), UUID.randomUUID())

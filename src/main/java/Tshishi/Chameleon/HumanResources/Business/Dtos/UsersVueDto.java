@@ -19,8 +19,6 @@ public class UsersVueDto  implements IdentifiedDto<UUID> {
 
     private String initialName;
 
-    private String businessNumber;
-
     private String mail;
 
     private String phone;

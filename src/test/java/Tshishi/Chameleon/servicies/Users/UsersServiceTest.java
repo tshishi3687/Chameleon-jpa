@@ -31,12 +31,10 @@ public class UsersServiceTest extends AbstractServicesTest {
                 dto.getId(),
                 "lilo",
                 "popo",
-                null,
                 date,
                 "test@test.be",
                 "0032554466",
                 "lilo,3687",
-                null,
                 dto.getContactDetails()
         );
     }

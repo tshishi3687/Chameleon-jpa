@@ -32,10 +32,6 @@ public class Users extends BaseEntity implements UserDetails {
     private String lastName;
 
     @Column(unique = true)
-    @Pattern(regexp = "^[0-9A-Za-z]{8,}$", message = "Numéro d'entreprise européen invalide")
-    private String businessNumber;
-
-    @Column(unique = true)
     @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,6}$", message = "Adresse e-mail invalide")
     private String mail;
 
@@ -52,8 +48,8 @@ public class Users extends BaseEntity implements UserDetails {
     @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "users_roles",
-            joinColumns = @JoinColumn(name = "UsersID"),
-            inverseJoinColumns = @JoinColumn(name = "RolesID"))
+            joinColumns = @JoinColumn(name = "usersID"),
+            inverseJoinColumns = @JoinColumn(name = "rolesID"))
     @ToString.Exclude
     private List<Roles> rolesList;
 

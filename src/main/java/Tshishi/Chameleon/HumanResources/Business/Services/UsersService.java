@@ -37,7 +37,7 @@ public class UsersService {
     @Transactional
     public UsersVueDto addEntity(UpdateOrCreateUsers dto) {
         AtomicReference<Users> usersAtomicReference = new AtomicReference<>();
-        usersRepository.findUsersByMailOrPhoneOrBusinessNumber(dto.getMail(), dto.getPhone(), dto.getBusinessNumber())
+        usersRepository.findUsersByMailOrPhone(dto.getMail(), dto.getPhone())
                 .ifPresentOrElse(
                         value -> serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.ADDING_ENTITY, dto, value.getId()),
                         () -> {
@@ -96,36 +96,36 @@ public class UsersService {
         return usersVueDtoAtomicReference.get();
     }
 
-    private void checkOrInitRoles(AtomicReference<Users> usersAtomicReference, UpdateOrCreateUsers dto) {
-        List<Roles> rolesList = rolesRepository.findAll();
-        if (rolesList.isEmpty()) {
-            serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.FIRST_CONNECT, dto, null);
-            serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, dto.getRolesDtoList().stream().findFirst().orElseThrow(), null);
-            // First user using app
-            Roles roles = new Roles();
-            roles.setName(UsersRoles.SUPER_ADMIN.getRoleName());
-            usersAtomicReference.get().getRolesList().add(rolesRepository.save(roles));
-            serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.ADDING_ENTITY, new RolesDto(), usersAtomicReference.get().getRolesList().stream().findFirst().orElseThrow().getId());
-        } else {
-            serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, dto, null);
-            // Check if rolesDto not existed
-            dto.getRolesDtoList().forEach(rolesDto -> {
-                if (!rolesRepository.existsById(rolesDto.getId())) {
-                    serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.ADDING_ENTITY, rolesDto, rolesDto.getId());
-                }
-            });
-        }
-    }
+//    private void checkOrInitRoles(AtomicReference<Users> usersAtomicReference, UpdateOrCreateUsers dto) {
+//        List<Roles> rolesList = rolesRepository.findAll();
+//        if (rolesList.isEmpty()) {
+//            serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.FIRST_CONNECT, dto, null);
+//            serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, dto.getRolesDtoList().stream().findFirst().orElseThrow(), null);
+//            // First user using app
+//            Roles roles = new Roles();
+//            roles.setName(UsersRoles.SUPER_ADMIN.getRoleName());
+//            usersAtomicReference.get().getRolesList().add(rolesRepository.save(roles));
+//            serviceLogs.logsConstruction(LoggerStep.SUCCESS, LoggerTypes.ADDING_ENTITY, new RolesDto(), usersAtomicReference.get().getRolesList().stream().findFirst().orElseThrow().getId());
+//        } else {
+//            serviceLogs.logsConstruction(LoggerStep.TRY, LoggerTypes.ADDING_ENTITY, dto, null);
+//            // Check if rolesDto not existed
+//            dto.getRolesDtoList().forEach(rolesDto -> {
+//                if (!rolesRepository.existsById(rolesDto.getId())) {
+//                    serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.ADDING_ENTITY, rolesDto, rolesDto.getId());
+//                }
+//            });
+//        }
+//    }
 
-    private void addUsersRoles(AtomicReference<Users> usersAtomicReference, UpdateOrCreateUsers dto) {
-        usersAtomicReference.get().getRolesList().addAll(
-                rolesRepository.findAllByIdIn(
-                        dto.getRolesDtoList().stream()
-                                .filter(rolesDto -> !rolesDto.getName().equals(UsersRoles.SUPER_ADMIN.getRoleName()))
-                                .map(RolesDto::getId).toList()
-                )
-        );
-    }
+//    private void addUsersRoles(AtomicReference<Users> usersAtomicReference, UpdateOrCreateUsers dto) {
+//        usersAtomicReference.get().getRolesList().addAll(
+//                rolesRepository.findAllByIdIn(
+//                        dto.getRolesDtoList().stream()
+//                                .filter(rolesDto -> !rolesDto.getName().equals(UsersRoles.SUPER_ADMIN.getRoleName()))
+//                                .map(RolesDto::getId).toList()
+//                )
+//        );
+//    }
 
     private void addUsersContactDetails(AtomicReference<Users> usersAtomicReference, UpdateOrCreateUsers dto) {
         List<ContactDetails> contactDetailsList = new ArrayList<>();
@@ -190,17 +190,7 @@ public class UsersService {
                             () -> value.setPhone(dto.getPhone())
                     );
         }
-        if (StringUtils.isNotBlank(dto.getBusinessNumber())) {
-            usersRepository.findUsersByBusinessNumber(dto.getBusinessNumber())
-                    .ifPresentOrElse(
-                            usersBusinessValue -> {
-                                if (!value.getId().equals(usersBusinessValue.getId())) {
-                                    serviceLogs.logsConstruction(LoggerStep.EXISTED, LoggerTypes.ADDING_ENTITY, usersVueMapper.toDto(usersBusinessValue), usersBusinessValue.getId());
-                                }
-                            },
-                            () -> value.setBusinessNumber(dto.getBusinessNumber())
-                    );
-        }
+
         if (StringUtils.isNotBlank(dto.getPassword())) {
             value.setPassWord(dto.getPassword());
         }
@@ -212,17 +202,17 @@ public class UsersService {
         }
     }
 
-    private void updateRoles(Users value, List<RolesDto> rolesDtoList) {
-        value.getRolesList().removeIf(roles -> !roles.getName().equals(UsersRoles.SUPER_ADMIN.getRoleName()));
-
-        rolesDtoList.forEach(rolesDto -> {
-            if (!rolesRepository.existsById(rolesDto.getId())) {
-                serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.ADDING_ENTITY, rolesDto, rolesDto.getId());
-            } else if (!rolesDto.getName().equals(UsersRoles.SUPER_ADMIN.getRoleName())) {
-                value.getRolesList().add(rolesRepository.findById(rolesDto.getId()).orElseThrow());
-            }
-        });
-    }
+//    private void updateRoles(Users value, List<RolesDto> rolesDtoList) {
+//        value.getRolesList().removeIf(roles -> !roles.getName().equals(UsersRoles.SUPER_ADMIN.getRoleName()));
+//
+//        rolesDtoList.forEach(rolesDto -> {
+//            if (!rolesRepository.existsById(rolesDto.getId())) {
+//                serviceLogs.logsConstruction(LoggerStep.ERROR, LoggerTypes.ADDING_ENTITY, rolesDto, rolesDto.getId());
+//            } else if (!rolesDto.getName().equals(UsersRoles.SUPER_ADMIN.getRoleName())) {
+//                value.getRolesList().add(rolesRepository.findById(rolesDto.getId()).orElseThrow());
+//            }
+//        });
+//    }
 
     private void updateContactDetails(Users value, List<ContactDetailsDto> dtos) {
         value.getContactDetails().removeIf(contactDetails -> !dtos.contains(contactDetailsMapper.toDto(contactDetails)));

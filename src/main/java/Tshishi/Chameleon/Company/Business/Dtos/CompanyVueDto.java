@@ -16,5 +16,6 @@ public class CompanyVueDto implements IdentifiedDto<UUID> {
 
     private UUID id;
     private String name;
+    private String businessNumber;
     private SubscriptionDto subscription;
 }

@@ -16,7 +16,6 @@ public class UsersVueMapper implements IdentifiedMapper<UsersVueDto, Users> {
         return new UsersVueDto(
                 users.getId(),
                 users.getFirstName().toUpperCase() + " " + users.getLastName().toUpperCase(),
-                users.getBusinessNumber(),
                 mask(users.getMail()),
                 mask(users.getPhone()),
                 rolesMapper.toDtos(users.getRolesList()),

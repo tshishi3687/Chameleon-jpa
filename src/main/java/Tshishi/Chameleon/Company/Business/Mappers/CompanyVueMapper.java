@@ -13,6 +13,7 @@ public class CompanyVueMapper implements IdentifiedMapper<CompanyVueDto, Company
         return new CompanyVueDto(
                 company.getId(),
                 company.getName(),
+                company.getBusinessNumber(),
                 null
         );
     }

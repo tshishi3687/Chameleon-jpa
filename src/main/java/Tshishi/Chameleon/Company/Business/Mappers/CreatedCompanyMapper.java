@@ -18,6 +18,7 @@ public class CreatedCompanyMapper implements IdentifiedMapper<CreatedCompanyDto,
     public Company toEntity(CreatedCompanyDto createdCompanyDto) {
         return new Company(
                 createdCompanyDto.getName(),
+                createdCompanyDto.getBusinessNumber(),
                 null,
                 null,
                 new ArrayList<>(),

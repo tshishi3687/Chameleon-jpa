@@ -2,17 +2,10 @@
   "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
   "firstName": "Tshibangu",
   "lastName": "Cédrick",
-  "businessNumber": null,
   "birthDay": "1987-06-03",
   "mail": "tshishi@outlook.be",
   "phone": "0493740772",
   "password": "lilo,3687",
-  "rolesDtoList": [
-    {
-      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-      "name": "string"
-    }
-  ],
   "contactDetails": [
     {
       "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",

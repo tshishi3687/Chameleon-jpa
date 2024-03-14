@@ -29,7 +29,6 @@ public abstract class AbstractServicesTest {
         dto = usersService.addEntity(updateOrCreateUsers);
         assertNotNull(dto.getId());
         assertEquals(dto.getInitialName(), updateOrCreateUsers.getFirstName().toUpperCase() + " " + updateOrCreateUsers.getLastName().toUpperCase());
-        assertNull(dto.getBusinessNumber());
         assertEquals(dto.getMail(), mask(updateOrCreateUsers.getMail()));
         assertEquals(dto.getPhone(), mask(updateOrCreateUsers.getPhone()));
         assertFalse(dto.getContactDetails().isEmpty());

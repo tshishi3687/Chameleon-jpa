@@ -23,7 +23,7 @@ public class JwtUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String logger) throws UsernameNotFoundException {
-        Optional<Users> entity = usersRepository.findUsersByMailOrPhoneOrBusinessNumber(logger, logger, logger);
+        Optional<Users> entity = usersRepository.findUsersByMailOrPhone(logger, logger);
         if (entity.isPresent()) {
             Collection<GrantedAuthority> authorities = new ArrayList<>();
             authorities.add(new SimpleGrantedAuthority(entity.get().getPassword()));

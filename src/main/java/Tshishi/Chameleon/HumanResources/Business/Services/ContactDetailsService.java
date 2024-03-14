@@ -44,7 +44,7 @@ public class ContactDetailsService implements IdentifiedService<ContactDetailsDt
         localityRepository.findLocalityByName(dto.getLocality().getName().toUpperCase())
                 .ifPresentOrElse(
                         contactDetails::setLocality,
-                        () -> localityRepository.save(new Locality(dto.getLocality().getName().toUpperCase()))
+                        () -> contactDetails.setLocality(localityRepository.save(new Locality(dto.getLocality().getName().toUpperCase())))
                 );
 
         // set Country
@@ -52,10 +52,11 @@ public class ContactDetailsService implements IdentifiedService<ContactDetailsDt
         countryRepository.findCountryByName(dto.getCountry().getName().toUpperCase())
                 .ifPresentOrElse(
                         contactDetails::setCountry,
-                        () -> countryRepository.save(new Country(dto.getCountry().getName().toUpperCase()))
+                        () -> contactDetails.setCountry(countryRepository.save(new Country(dto.getCountry().getName().toUpperCase())))
                 );
 
-        return contactDetailsMapper.toDto(contactDetailsRepository.saveAndFlush(contactDetails));
+        ContactDetails contactDetails1 = contactDetailsRepository.saveAndFlush(contactDetails);
+        return contactDetailsMapper.toDto(contactDetails1);
     }
 
     @Override

@@ -22,9 +22,6 @@ public class UpdateOrCreateUsers implements IdentifiedDto<UUID> {
     @NonNull
     private String lastName;
 
-    @Pattern(regexp = "^[0-9A-Za-z]{8,}$", message = "Numéro d'entreprise européen invalide")
-    private String businessNumber;
-
     private LocalDate birthDay;
 
     @NonNull
@@ -36,8 +33,6 @@ public class UpdateOrCreateUsers implements IdentifiedDto<UUID> {
     private String phone;
 
     private String password;
-
-    private List<RolesDto> rolesDtoList;
 
     private List<ContactDetailsDto> contactDetails;
 

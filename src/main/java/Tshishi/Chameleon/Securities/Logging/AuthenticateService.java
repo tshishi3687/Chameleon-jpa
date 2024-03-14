@@ -45,6 +45,6 @@ public class AuthenticateService {
             throw new BadCredentialsException("Invalid JWT token");
         }
         jwt = authHeader.replace(ConstParam.BEARER, "");
-        return ResponseEntity.ok(jwtService.validateToken(jwt, usersRepository.findUsersByMailOrPhoneOrBusinessNumber(jwtAuth.userEmail, jwtAuth.userEmail, jwtAuth.userEmail).orElseThrow()));
+        return ResponseEntity.ok(jwtService.validateToken(jwt, usersRepository.findUsersByMailOrPhone(jwtAuth.userEmail, jwtAuth.userEmail).orElseThrow()));
     }
 }
