@@ -55,7 +55,7 @@ public class CompanyServiceTest {
                             assertNotNull(value.getTutors().getId());
                             assertEquals(value.getTutors().getFirstName(), addCompanyAndUsers.getUsers().getFirstName());
                             assertEquals(value.getTutors().getLastName(), addCompanyAndUsers.getUsers().getLastName());
-                            assertEquals(value.getTutors().getMail(), addCompanyAndUsers.getUsers().getMail());
+                            assertEquals(value.getTutors().getEmail(), addCompanyAndUsers.getUsers().getMail());
                             assertEquals(value.getTutors().getPhone(), addCompanyAndUsers.getUsers().getPhone());
 
                             List<Roles> tutorRoles = value.getTutors().getRolesList();

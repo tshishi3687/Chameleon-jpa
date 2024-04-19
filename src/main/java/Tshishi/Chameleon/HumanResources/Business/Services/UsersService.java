@@ -174,7 +174,7 @@ public class UsersService {
                                     serviceLogs.logsConstruction(LoggerStep.EXISTED, LoggerTypes.ADDING_ENTITY, usersVueMapper.toDto(usersMailValue), usersMailValue.getId());
                                 }
                             },
-                            () -> value.setMail(dto.getMail())
+                            () -> value.setEmail(dto.getMail())
                     );
         }
         if (StringUtils.isNotBlank(dto.getPhone())) {

@@ -33,7 +33,8 @@ public class SecurityConfigurer {
                                 auth
                                         .requestMatchers("/", "/favicon.ico", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                                         .requestMatchers( "/v01/auth/authenticate", "/v01/company/add").permitAll()
-                                        .anyRequest().authenticated()
+                                        .anyRequest()
+                                        .authenticated()
                                         .and()
                                         .sessionManagement()
                                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

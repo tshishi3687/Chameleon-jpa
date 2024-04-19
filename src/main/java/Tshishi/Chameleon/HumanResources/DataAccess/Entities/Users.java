@@ -33,7 +33,7 @@ public class Users extends BaseEntity implements UserDetails {
 
     @Column(unique = true)
     @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,6}$", message = "Adresse e-mail invalide")
-    private String mail;
+    private String email;
 
     @Column(unique = true)
     @Pattern(regexp = "^(\\+|00)\\d{1,4}[\\s/0-9]*$", message = "Numéro de téléphone européen invalide")
@@ -81,7 +81,7 @@ public class Users extends BaseEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return mail;
+        return email;
     }
 
     @Override

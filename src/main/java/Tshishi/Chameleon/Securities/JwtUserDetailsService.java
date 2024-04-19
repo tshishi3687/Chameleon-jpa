@@ -27,7 +27,7 @@ public class JwtUserDetailsService implements UserDetailsService {
         if (entity.isPresent()) {
             Collection<GrantedAuthority> authorities = new ArrayList<>();
             authorities.add(new SimpleGrantedAuthority(entity.get().getPassword()));
-            return new User(entity.get().getMail(), entity.get().getPassword(),
+            return new User(entity.get().getEmail(), entity.get().getPassword(),
                     authorities);
         }
         return null;
